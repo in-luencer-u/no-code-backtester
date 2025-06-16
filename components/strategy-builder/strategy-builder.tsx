@@ -1,30 +1,29 @@
 "use client"
 
-import { useState } from "react"
-import { Save, ArrowRight } from "lucide-react"
+import { useState, useEffect } from "react"
+import { Save, ArrowRight, Loader2, CheckCircle } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { cleanPositionRule } from "./utils";
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Progress } from "@/components/ui/progress"
 
 import EntryExitNode from "./entry-exit-node"
 import RiskManagement from "./risk-management/risk-management-main"
 import { useStrategy } from "@/context/strategy-context"
 import StrategyJsonExporter from "./strategy-json-exporter"
 
-import type { 
+import type {
   IndicatorCondition,
   ConditionGroup,
   PositionRule,
   IndicatorType,
-  IndicatorParams,
   IndicatorLogic,
-  RiskManagementConfig
-} from "./types";
+  RiskManagementConfig,
+} from "./types"
 
 export type StrategyConfig = {
-  id: string // Added 'id' property
+  id: string
   name: string
   description: string
   entryLong: PositionRule
@@ -36,6 +35,7 @@ export type StrategyConfig = {
 }
 
 const generateId = (prefix: string) => `${prefix}-${new Date().toISOString()}`
+
 const defaultCondition: IndicatorCondition = {
   id: generateId("condition"),
   indicator: "rsi" as IndicatorType,
@@ -45,19 +45,14 @@ const defaultCondition: IndicatorCondition = {
   params: {
     period: 14,
     source: "close",
-
-    //overbought: 70,
-    //oversold: 30,
-
   },
-
   secondaryIndicator: {
     type: "sma" as IndicatorType,
     params: {
       period: 14,
-     source: "close",
-   },
- },
+      source: "close",
+    },
+  },
 }
 
 const defaultConditionGroup: ConditionGroup = {
@@ -66,27 +61,28 @@ const defaultConditionGroup: ConditionGroup = {
   operator: "or",
 }
 
-
-
-
 const defaultPositionRule = (id: string = generateId("rule")): PositionRule => ({
   id,
-  conditionGroups: [{
-    id: generateId("group"),
-    conditions: [{
-      id: generateId("condition"),
-      indicator: "rsi" as IndicatorType,
-      logic: "less_than" as IndicatorLogic,
-      value: "30",
-      timeframe: "1d",
-      params: {
-        period: 14,
-        source: "close",
-      },
-    }],
-    operator: "or",
-  }],
-});
+  conditionGroups: [
+    {
+      id: generateId("group"),
+      conditions: [
+        {
+          id: generateId("condition"),
+          indicator: "rsi" as IndicatorType,
+          logic: "less_than" as IndicatorLogic,
+          value: "30",
+          timeframe: "1d",
+          params: {
+            period: 14,
+            source: "close",
+          },
+        },
+      ],
+      operator: "or",
+    },
+  ],
+})
 
 const defaultRiskManagement: RiskManagementConfig = {
   stopLoss: [
@@ -138,7 +134,6 @@ const defaultStrategy: StrategyConfig = {
   isPublic: false,
 }
 
-// Function to create API client for backend communication
 const apiClient = {
   saveStrategy: async (strategy: StrategyConfig) => {
     try {
@@ -211,8 +206,14 @@ export default function StrategyBuilder() {
     riskManagement: defaultRiskManagement,
   })
   const [isSaving, setIsSaving] = useState(false)
+  const [saveSuccess, setSaveSuccess] = useState(false)
+  const [isVisible, setIsVisible] = useState(false)
   const router = useRouter()
   const { setStrategyName, setStrategyId, setIsPublic, setIndicators } = useStrategy()
+
+  useEffect(() => {
+    setIsVisible(true)
+  }, [])
 
   const updateStrategy = (updates: Partial<StrategyConfig>) => {
     setStrategy((prev) => ({
@@ -223,24 +224,23 @@ export default function StrategyBuilder() {
 
   const createPositionRule = (groups: ConditionGroup[]): PositionRule => ({
     id: generateId("rule"),
-    conditionGroups: groups
+    conditionGroups: groups,
   })
 
-  // Update handlers
   const handleEntryLongUpdate = (groups: ConditionGroup[]) => updateStrategy({ entryLong: createPositionRule(groups) })
-  const handleEntryShortUpdate = (groups: ConditionGroup[]) => updateStrategy({ entryShort: createPositionRule(groups) })
+  const handleEntryShortUpdate = (groups: ConditionGroup[]) =>
+    updateStrategy({ entryShort: createPositionRule(groups) })
   const handleExitLongUpdate = (groups: ConditionGroup[]) => updateStrategy({ exitLong: createPositionRule(groups) })
   const handleExitShortUpdate = (groups: ConditionGroup[]) => updateStrategy({ exitShort: createPositionRule(groups) })
 
   const saveStrategy = async () => {
     try {
       setIsSaving(true)
+      setSaveSuccess(false)
 
-      // Generate a new ID if one doesn't exist
       const strategyWithId = {
         ...strategy,
         id: strategy.id || generateId("strategy"),
-        // Ensure all condition parameters are properly structured
         entryLong: {
           ...strategy.entryLong,
           conditionGroups: strategy.entryLong.conditionGroups.map((group) => ({
@@ -283,20 +283,16 @@ export default function StrategyBuilder() {
         },
       }
 
-      // Store strategy data in context
       setStrategyName(strategyWithId.name)
       setStrategyId(strategyWithId.id)
       setIsPublic(strategyWithId.isPublic || false)
 
-      // Collect all indicators used in the strategy
       const indicators = new Set<string>()
 
-      // Helper function to collect indicators from condition groups
       const collectIndicators = (positionRule: PositionRule) => {
         positionRule.conditionGroups.forEach((group) => {
           group.conditions.forEach((condition) => {
             indicators.add(condition.indicator)
-            // Also collect secondary indicators from crossover logic
             if (condition.params?.secondary_indicator) {
               indicators.add(condition.params.secondary_indicator)
             }
@@ -311,9 +307,10 @@ export default function StrategyBuilder() {
 
       setIndicators(Array.from(indicators))
 
-      // In a real app, this would save to your backend
       await apiClient.saveStrategy(strategyWithId)
-      alert("Strategy saved successfully!")
+      setSaveSuccess(true)
+
+      setTimeout(() => setSaveSuccess(false), 3000)
       return true
     } catch (error) {
       console.error("Error saving strategy:", error)
@@ -324,143 +321,176 @@ export default function StrategyBuilder() {
     }
   }
 
+  const getCompletionProgress = () => {
+    let completed = 0
+    const total = 4
+
+    if (strategy.entryLong.conditionGroups.length > 0) completed++
+    if (strategy.entryShort.conditionGroups.length > 0) completed++
+    if (strategy.exitLong.conditionGroups.length > 0) completed++
+    if (strategy.exitShort.conditionGroups.length > 0) completed++
+
+    return (completed / total) * 100
+  }
+
   return (
-    <div className="flex flex-col gap-4 sm:flex-row sm:gap-6">
-      <div className="w-full sm:w-1/2">
-        <Card className="shadow-md">
-          <CardHeader>
-            <CardTitle className="text-base sm:text-lg font-bold">Entry Rules</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <EntryExitNode
-              positionRule={strategy.entryLong}
-              onChange={(updatedRule) => updateStrategy({ entryLong: updatedRule })}
-              title="Long Position"
-            />
-            <EntryExitNode
-              positionRule={strategy.entryShort}
-              onChange={(updatedRule) => updateStrategy({ entryShort: updatedRule })}
-              title="Short Position"
-            />
-          </CardContent>
-        </Card>
-      </div>
-      <div className="w-full sm:w-1/2">
-        <Card className="shadow-md">
-          <CardHeader>
-            <CardTitle className="text-base sm:text-lg font-bold">Exit Rules</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <EntryExitNode
-              positionRule={strategy.exitLong}
-              onChange={(updatedRule) => updateStrategy({ exitLong: updatedRule })}
-              title="Long Position"
-            />
-            <EntryExitNode
-              positionRule={strategy.exitShort}
-              onChange={(updatedRule) => updateStrategy({ exitShort: updatedRule })}
-              title="Short Position"
-            />
-          </CardContent>
-        </Card>
-      </div>
+    <div className={`min-h-screen hero-bg ${isVisible ? "animate-fade-in-up" : "opacity-0"}`}>
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
+        {/* Header Section */}
+        <div className="mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold gradient-text mb-2">Strategy Builder</h1>
+              <p className="text-muted-foreground">Create your trading strategy with our visual builder</p>
+            </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="builder">Entry/Exit Rules</TabsTrigger>
-          <TabsTrigger value="risk">Risk Management</TabsTrigger>
-          <TabsTrigger value="preview">Preview</TabsTrigger>
-          <TabsTrigger value="json">JSON Export</TabsTrigger>
-        </TabsList>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Button onClick={saveStrategy} disabled={isSaving} className="btn-primary group">
+                {isSaving ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : saveSuccess ? (
+                  <>
+                    <CheckCircle className="mr-2 h-4 w-4" />
+                    Saved!
+                  </>
+                ) : (
+                  <>
+                    <Save className="mr-2 h-4 w-4" />
+                    Save Strategy
+                  </>
+                )}
+              </Button>
 
-        <TabsContent value="builder" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Entry Section */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-xl">Entry Rules</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div>
-                  <h3 className="text-lg font-semibold mb-4">Long Position</h3>
-                  <EntryExitNode
-                    positionRule={strategy.entryLong}
-                    onChange={(updatedRule) => updateStrategy({ entryLong: updatedRule })}
-                    title="Long Position"
-                  />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold mb-4">Short Position</h3>
-                  <EntryExitNode
-                    positionRule={strategy.entryShort}
-                    onChange={(updatedRule) => updateStrategy({ entryShort: updatedRule })}
-                    title="Short Position"
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Exit Section */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-xl">Exit Rules</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div>
-                  <h3 className="text-lg font-semibold mb-4">Long Position</h3>
-                  <EntryExitNode
-                    positionRule={strategy.exitLong}
-                    onChange={(updatedRule) => updateStrategy({ exitLong: updatedRule })}
-                    title="Long Position"
-                  />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold mb-4">Short Position</h3>
-                  <EntryExitNode
-                    positionRule={strategy.exitShort}
-                    onChange={(updatedRule) => updateStrategy({ exitShort: updatedRule })}
-                    title="Short Position"
-                  />
-                </div>
-              </CardContent>
-            </Card>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  saveStrategy().then(() => {
+                    router.push(`/backtest?strategy=${strategy.name}`)
+                  })
+                }}
+                className="border-primary/20 hover:bg-primary/5 group"
+              >
+                Continue to Backtest
+                <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </Button>
+            </div>
           </div>
-        </TabsContent>
 
-        <TabsContent value="risk" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-xl">Risk Management</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <RiskManagement
-                config={strategy.riskManagement}
-                onChange={(updatedConfig) => updateStrategy({ riskManagement: updatedConfig })}
-              />
+          {/* Progress Bar */}
+          <Card className="border-purple-500/20 glow-purple">
+            <CardContent className="pt-4 pb-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium">Strategy Completion</span>
+                <span className="text-sm text-muted-foreground">{Math.round(getCompletionProgress())}%</span>
+              </div>
+              <Progress value={getCompletionProgress()} className="h-2" />
             </CardContent>
           </Card>
-        </TabsContent>
-        <TabsContent value="json">
-      <StrategyJsonExporter strategy={strategy} />
-        </TabsContent>
-      </Tabs>
+        </div>
 
-      <Button onClick={saveStrategy} className="w-full mb-4" disabled={isSaving}>
-        <Save className="mr-2 h-4 w-4" /> {isSaving ? "Saving..." : "Save Strategy"}
-      </Button>
+        {/* Mobile-First Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <div className="overflow-x-auto">
+            <TabsList className="tabs-list grid w-full grid-cols-2 lg:grid-cols-4 min-w-max lg:min-w-0">
+              <TabsTrigger value="builder" className="tab-trigger text-xs sm:text-sm">
+                Entry/Exit Rules
+              </TabsTrigger>
+              <TabsTrigger value="risk" className="tab-trigger text-xs sm:text-sm">
+                Risk Management
+              </TabsTrigger>
+              <TabsTrigger value="preview" className="tab-trigger text-xs sm:text-sm">
+                Preview
+              </TabsTrigger>
+              <TabsTrigger value="json" className="tab-trigger text-xs sm:text-sm">
+                JSON Export
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
-      <div className="flex justify-center mt-4">
-        <Button
-          variant="outline"
-          onClick={() => {
-            // Save strategy first, then redirect
-            saveStrategy().then(() => {
-              router.push(`/backtest?strategy=${strategy.name}`)
-            })
-          }}
-        >
-          Continue to Backtest <ArrowRight className="ml-2 h-4 w-4" />
-        </Button>
+          <TabsContent value="builder" className="space-y-6">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+              {/* Entry Section */}
+              <Card className="border-purple-500/20 hover:border-purple-500/30 transition-all duration-300 bg-background/60 backdrop-blur-xl">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-lg sm:text-xl flex items-center text-foreground">
+                    <div className="h-2 w-2 bg-purple-500 rounded-full mr-3 animate-pulse"></div>
+                    Entry Rules
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6 card-content">
+                  <div>
+                    <h3 className="text-base sm:text-lg font-semibold mb-4 text-green-400">Long Position</h3>
+                    <EntryExitNode
+                      positionRule={strategy.entryLong}
+                      onChange={(updatedRule) => updateStrategy({ entryLong: updatedRule })}
+                      title="Long Position"
+                    />
+                  </div>
+                  <div className="border-t border-border/50 pt-6">
+                    <h3 className="text-base sm:text-lg font-semibold mb-4 text-red-400">Short Position</h3>
+                    <EntryExitNode
+                      positionRule={strategy.entryShort}
+                      onChange={(updatedRule) => updateStrategy({ entryShort: updatedRule })}
+                      title="Short Position"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Exit Section */}
+              <Card className="border-purple-500/20 hover:border-purple-500/30 transition-all duration-300 bg-background/60 backdrop-blur-xl">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-lg sm:text-xl flex items-center text-foreground">
+                    <div className="h-2 w-2 bg-purple-500 rounded-full mr-3 animate-pulse"></div>
+                    Exit Rules
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6 card-content">
+                  <div>
+                    <h3 className="text-base sm:text-lg font-semibold mb-4 text-green-400">Long Position</h3>
+                    <EntryExitNode
+                      positionRule={strategy.exitLong}
+                      onChange={(updatedRule) => updateStrategy({ exitLong: updatedRule })}
+                      title="Long Position"
+                    />
+                  </div>
+                  <div className="border-t border-border/50 pt-6">
+                    <h3 className="text-base sm:text-lg font-semibold mb-4 text-red-400">Short Position</h3>
+                    <EntryExitNode
+                      positionRule={strategy.exitShort}
+                      onChange={(updatedRule) => updateStrategy({ exitShort: updatedRule })}
+                      title="Short Position"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="risk" className="space-y-6">
+            <Card className="border-primary/10">
+              <CardHeader>
+                <CardTitle className="text-lg sm:text-xl flex items-center">
+                  <div className="h-2 w-2 bg-yellow-500 rounded-full mr-3"></div>
+                  Risk Management
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <RiskManagement
+                  config={strategy.riskManagement}
+                  onChange={(updatedConfig) => updateStrategy({ riskManagement: updatedConfig })}
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="json">
+            <StrategyJsonExporter strategy={strategy} />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   )

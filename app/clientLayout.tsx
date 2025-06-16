@@ -16,6 +16,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import ModernNavbar from "@/components/ui/ModernNavbar"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -172,35 +173,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
         <div className="flex-1 flex flex-col min-h-screen">
           {/* Public header - only shown on public pages */}
           {!isAuthenticated && pathname !== "/login" && pathname !== "/signup" && (
-            <header className="sticky top-0 z-50 w-full border-b border-primary/10 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-              <div className="container flex h-14 items-center justify-between">
-                <Link href="/" className="flex items-center space-x-3 group">
-                  {/* Candlestick chart icon as SVG */}
-                  <span className="inline-flex items-center justify-center">
-                    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <rect x="8" y="20" width="3" height="10" rx="1.5" fill="#2196F3"/>
-                      <rect x="13" y="14" width="3" height="10" rx="1.5" fill="#2196F3"/>
-                      <rect x="18" y="8" width="3" height="10" rx="1.5" fill="#2196F3"/>
-                      <rect x="23" y="8" width="3" height="10" rx="1.5" fill="#F44336"/>
-                      <rect x="28" y="14" width="3" height="10" rx="1.5" fill="#F44336"/>
-                      <rect x="33" y="20" width="3" height="10" rx="1.5" fill="#F44336"/>
-                    </svg>
-                  </span>
-                  <span className="font-extrabold text-xl tracking-tight text-foreground">Trade Crafter</span>
-                </Link>
-                <div className="flex items-center space-x-3">
-                  <Link href="/login" className="text-sm font-medium transition-colors hover:text-primary underline-offset-4 hover:underline px-2 py-1 rounded-md">
-                    Login
-                  </Link>
-                  <Link
-                    href="/signup"
-                    className="rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 shadow-none"
-                  >
-                    Sign Up
-                  </Link>
-                </div>
-              </div>
-            </header>
+            <ModernNavbar />
           )}
 
           {/* Authenticated header - only shown on authenticated pages */}

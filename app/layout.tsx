@@ -5,6 +5,8 @@ import ClientLayout from "./clientLayout"
 import { StrategyProvider } from "@/context/strategy-context"
 import { ThemeProvider } from "@/components/theme-provider"
 import { AuthProvider } from "@/context/auth-context"
+//import SmoothScroll from "./components/smooth-scroll"
+
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -15,7 +17,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <AuthProvider>
             <StrategyProvider>
-              <ClientLayout>{children}</ClientLayout>
+             
+                <ClientLayout>{children}</ClientLayout>
+              
             </StrategyProvider>
           </AuthProvider>
         </ThemeProvider>
@@ -25,5 +29,5 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 }
 
 export const metadata = {
-      generator: 'v0.dev'
-    };
+  generator: "v0.dev",
+}

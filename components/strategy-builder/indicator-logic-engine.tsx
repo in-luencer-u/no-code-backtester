@@ -409,9 +409,10 @@ const IndicatorLogicEngine: React.FC<IndicatorLogicEngineProps> = ({ condition, 
           )}
 
           {/* Logic Section */}
-          <div className="space-y-4">
+         
+          <div className="space-y-2">
             <h3 className="text-sm font-medium">Logic</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* Logic Dropdown */}
               <div className="space-y-2">
                 <Label>Logic</Label>
@@ -437,7 +438,7 @@ const IndicatorLogicEngine: React.FC<IndicatorLogicEngineProps> = ({ condition, 
                 (selectedLogic?.customInput && !MOVING_AVERAGE_INDICATORS.includes(condition.indicator)) ||
                 (!MOVING_AVERAGE_INDICATORS.includes(condition.indicator) && (condition.logic === "crosses_above" || condition.logic === "crosses_below"))
               ) && (
-                <div className="space-y-2">
+                <div className="space-y-3 md:ml-14 md:w-full">
                   <Label className="block mb-1">{selectedLogic?.inputLabel || "Custom Value"}</Label>
                   <div className="flex flex-col gap-3">
                     <Input
@@ -468,6 +469,7 @@ const IndicatorLogicEngine: React.FC<IndicatorLogicEngineProps> = ({ condition, 
                 </div>
               )}
             </div>
+         
             
 
             {/* Secondary Indicator Parameters */}
