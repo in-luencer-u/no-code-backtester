@@ -336,29 +336,38 @@ export default function StrategyBuilder() {
   return (
     <div className={`min-h-screen hero-bg ${isVisible ? "animate-fade-in-up" : "opacity-0"}`}>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
-        {/* Header Section */}
-        <div className="mb-8">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-bold gradient-text mb-2">Strategy Builder</h1>
-              <p className="text-muted-foreground">Create your trading strategy with our visual builder</p>
+        {/* Enhanced Header Section */}
+        <div className="mb-8 space-y-6">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+            <div className="space-y-3">
+              <div className="flex items-center space-x-3">
+                <div className="h-3 w-3 bg-purple-500 rounded-full animate-pulse"></div>
+                <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-purple-400 via-purple-500 to-purple-600 bg-clip-text text-transparent">
+                  Strategy Builder
+                </h1>
+              </div>
+              <p className="text-muted-foreground text-lg">Create your trading strategy with our visual builder</p>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3">
-              <Button onClick={saveStrategy} disabled={isSaving} className="btn-primary group">
+              <Button
+                onClick={saveStrategy}
+                disabled={isSaving}
+                className="border-purple-500/20 hover:border-purple-500/30  h-12 px-6 text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+              >
                 {isSaving ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                     Saving...
                   </>
                 ) : saveSuccess ? (
                   <>
-                    <CheckCircle className="mr-2 h-4 w-4" />
+                    <CheckCircle className="mr-2 h-5 w-5" />
                     Saved!
                   </>
                 ) : (
                   <>
-                    <Save className="mr-2 h-4 w-4" />
+                    <Save className=" mr-2 h-5 w-5" />
                     Save Strategy
                   </>
                 )}
@@ -371,98 +380,155 @@ export default function StrategyBuilder() {
                     router.push(`/backtest?strategy=${strategy.name}`)
                   })
                 }}
-                className="border-primary/20 hover:bg-primary/5 group"
+                className="h-12 px-6 text-base font-semibold border-purple-500/30 hover:border-purple-500/50 hover:bg-purple-500/10 text-purple-300 hover:text-purple-200 transition-all duration-300 group"
               >
                 Continue to Backtest
-                <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
               </Button>
             </div>
           </div>
 
-          {/* Progress Bar */}
-          <Card className="border-purple-500/20 glow-purple">
-            <CardContent className="pt-4 pb-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium">Strategy Completion</span>
-                <span className="text-sm text-muted-foreground">{Math.round(getCompletionProgress())}%</span>
+          {/* Enhanced Progress Bar */}
+          <Card className="border-purple-500/20 hover:border-purple-500/30 transition-all duration-300 bg-background/60 backdrop-blur-xl shadow-lg">
+            <CardContent className="pt-6 pb-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center space-x-2">
+                  <div className="h-2 w-2 bg-purple-400 rounded-full animate-pulse"></div>
+                  <span className="text-base font-semibold text-foreground">Strategy Completion</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-purple-600 bg-clip-text text-transparent">
+                    {Math.round(getCompletionProgress())}%
+                  </span>
+                </div>
               </div>
-              <Progress value={getCompletionProgress()} className="h-2" />
+              <Progress value={getCompletionProgress()} className="h-3 bg-background/60 border border-purple-500/20" />
+              <p className="text-sm text-muted-foreground mt-2">Complete all sections to unlock backtesting</p>
             </CardContent>
           </Card>
         </div>
 
-        {/* Mobile-First Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        {/* Enhanced Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
           <div className="overflow-x-auto">
-            <TabsList className="tabs-list grid w-full grid-cols-2 lg:grid-cols-4 min-w-max lg:min-w-0">
-              <TabsTrigger value="builder" className="tab-trigger text-xs sm:text-sm">
-                Entry/Exit Rules
+            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 min-w-max lg:min-w-0 bg-background/60 backdrop-blur-xl border border-purple-500/20 p-1 h-14">
+              <TabsTrigger
+                value="builder"
+                className="h-12 text-sm sm:text-base font-medium data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-300 data-[state=active]:border-purple-500/40 transition-all duration-200"
+              >
+                <div className="flex items-center space-x-2">
+                  <div className="h-2 w-2 bg-current rounded-full"></div>
+                  <span className="hidden sm:inline">Entry/Exit Rules</span>
+                  <span className="sm:hidden">Rules</span>
+                </div>
               </TabsTrigger>
-              <TabsTrigger value="risk" className="tab-trigger text-xs sm:text-sm">
-                Risk Management
+              <TabsTrigger
+                value="risk"
+                className="h-12 text-sm sm:text-base font-medium data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-300 data-[state=active]:border-purple-500/40 transition-all duration-200"
+              >
+                <div className="flex items-center space-x-2">
+                  <div className="h-2 w-2 bg-current rounded-full"></div>
+                  <span className="hidden sm:inline">Risk Management</span>
+                  <span className="sm:hidden">Risk</span>
+                </div>
               </TabsTrigger>
-              <TabsTrigger value="preview" className="tab-trigger text-xs sm:text-sm">
-                Preview
+              <TabsTrigger
+                value="preview"
+                className="h-12 text-sm sm:text-base font-medium data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-300 data-[state=active]:border-purple-500/40 transition-all duration-200"
+              >
+                <div className="flex items-center space-x-2">
+                  <div className="h-2 w-2 bg-current rounded-full"></div>
+                  <span>Preview</span>
+                </div>
               </TabsTrigger>
-              <TabsTrigger value="json" className="tab-trigger text-xs sm:text-sm">
-                JSON Export
+              <TabsTrigger
+                value="json"
+                className="h-12 text-sm sm:text-base font-medium data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-300 data-[state=active]:border-purple-500/40 transition-all duration-200"
+              >
+                <div className="flex items-center space-x-2">
+                  <div className="h-2 w-2 bg-current rounded-full"></div>
+                  <span className="hidden sm:inline">JSON Export</span>
+                  <span className="sm:hidden">JSON</span>
+                </div>
               </TabsTrigger>
             </TabsList>
           </div>
 
-          <TabsContent value="builder" className="space-y-6">
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-              {/* Entry Section */}
-              <Card className="border-purple-500/20 hover:border-purple-500/30 transition-all duration-300 bg-background/60 backdrop-blur-xl">
-                <CardHeader className="pb-4">
-                  <CardTitle className="text-lg sm:text-xl flex items-center text-foreground">
-                    <div className="h-2 w-2 bg-purple-500 rounded-full mr-3 animate-pulse"></div>
-                    Entry Rules
+          <TabsContent value="builder" className="space-y-8">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+              {/* Enhanced Entry Section */}
+              <Card className="border-purple-500/20 hover:border-purple-500/30 transition-all duration-300 bg-background/60 backdrop-blur-xl shadow-lg hover:shadow-xl">
+                <CardHeader className="pb-6">
+                  <CardTitle className="text-xl sm:text-2xl flex items-center text-foreground">
+                    <div className="flex items-center space-x-3">
+                      <div className="h-3 w-3 bg-green-500 rounded-full animate-pulse"></div>
+                      <span className="bg-gradient-to-r from-green-400 to-green-600 bg-clip-text text-transparent">
+                        Entry Rules
+                      </span>
+                    </div>
                   </CardTitle>
+                  <p className="text-muted-foreground mt-2">Define when to enter long and short positions</p>
                 </CardHeader>
-                <CardContent className="space-y-6 card-content">
-                  <div>
-                    <h3 className="text-base sm:text-lg font-semibold mb-4 text-green-400">Long Position</h3>
+                <CardContent className="space-y-8">
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-2">
+                      <div className="h-2 w-2 bg-green-400 rounded-full"></div>
+                      <h3 className="text-lg font-semibold text-green-400">Long Position Entry</h3>
+                    </div>
                     <EntryExitNode
                       positionRule={strategy.entryLong}
                       onChange={(updatedRule) => updateStrategy({ entryLong: updatedRule })}
-                      title="Long Position"
+                      title="Long Entry"
                     />
                   </div>
-                  <div className="border-t border-border/50 pt-6">
-                    <h3 className="text-base sm:text-lg font-semibold mb-4 text-red-400">Short Position</h3>
+                  <div className="border-t border-border/50 pt-8 space-y-4">
+                    <div className="flex items-center space-x-2">
+                      <div className="h-2 w-2 bg-red-400 rounded-full"></div>
+                      <h3 className="text-lg font-semibold text-red-400">Short Position Entry</h3>
+                    </div>
                     <EntryExitNode
                       positionRule={strategy.entryShort}
                       onChange={(updatedRule) => updateStrategy({ entryShort: updatedRule })}
-                      title="Short Position"
+                      title="Short Entry"
                     />
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Exit Section */}
-              <Card className="border-purple-500/20 hover:border-purple-500/30 transition-all duration-300 bg-background/60 backdrop-blur-xl">
-                <CardHeader className="pb-4">
-                  <CardTitle className="text-lg sm:text-xl flex items-center text-foreground">
-                    <div className="h-2 w-2 bg-purple-500 rounded-full mr-3 animate-pulse"></div>
-                    Exit Rules
+              {/* Enhanced Exit Section */}
+              <Card className="border-purple-500/20 hover:border-purple-500/30 transition-all duration-300 bg-background/60 backdrop-blur-xl shadow-lg hover:shadow-xl">
+                <CardHeader className="pb-6">
+                  <CardTitle className="text-xl sm:text-2xl flex items-center text-foreground">
+                    <div className="flex items-center space-x-3">
+                      <div className="h-3 w-3 bg-orange-500 rounded-full animate-pulse"></div>
+                      <span className="bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent">
+                        Exit Rules
+                      </span>
+                    </div>
                   </CardTitle>
+                  <p className="text-muted-foreground mt-2">Define when to exit long and short positions</p>
                 </CardHeader>
-                <CardContent className="space-y-6 card-content">
-                  <div>
-                    <h3 className="text-base sm:text-lg font-semibold mb-4 text-green-400">Long Position</h3>
+                <CardContent className="space-y-8">
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-2">
+                      <div className="h-2 w-2 bg-green-400 rounded-full"></div>
+                      <h3 className="text-lg font-semibold text-green-400">Long Position Exit</h3>
+                    </div>
                     <EntryExitNode
                       positionRule={strategy.exitLong}
                       onChange={(updatedRule) => updateStrategy({ exitLong: updatedRule })}
-                      title="Long Position"
+                      title="Long Exit"
                     />
                   </div>
-                  <div className="border-t border-border/50 pt-6">
-                    <h3 className="text-base sm:text-lg font-semibold mb-4 text-red-400">Short Position</h3>
+                  <div className="border-t border-border/50 pt-8 space-y-4">
+                    <div className="flex items-center space-x-2">
+                      <div className="h-2 w-2 bg-red-400 rounded-full"></div>
+                      <h3 className="text-lg font-semibold text-red-400">Short Position Exit</h3>
+                    </div>
                     <EntryExitNode
                       positionRule={strategy.exitShort}
                       onChange={(updatedRule) => updateStrategy({ exitShort: updatedRule })}
-                      title="Short Position"
+                      title="Short Exit"
                     />
                   </div>
                 </CardContent>
@@ -471,18 +537,68 @@ export default function StrategyBuilder() {
           </TabsContent>
 
           <TabsContent value="risk" className="space-y-6">
-            <Card className="border-primary/10">
-              <CardHeader>
-                <CardTitle className="text-lg sm:text-xl flex items-center">
-                  <div className="h-2 w-2 bg-yellow-500 rounded-full mr-3"></div>
-                  Risk Management
+            <Card className="border-purple-500/20 hover:border-purple-500/30 transition-all duration-300 bg-background/60 backdrop-blur-xl shadow-lg">
+              <CardHeader className="pb-6">
+                <CardTitle className="text-xl sm:text-2xl flex items-center">
+                  <div className="flex items-center space-x-3">
+                    <div className="h-3 w-3 bg-yellow-500 rounded-full animate-pulse"></div>
+                    <span className="bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent">
+                      Risk Management
+                    </span>
+                  </div>
                 </CardTitle>
+                <p className="text-muted-foreground mt-2">Configure position sizing, stop losses, and risk controls</p>
               </CardHeader>
               <CardContent>
                 <RiskManagement
                   config={strategy.riskManagement}
                   onChange={(updatedConfig) => updateStrategy({ riskManagement: updatedConfig })}
                 />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="preview" className="space-y-6">
+            <Card className="border-purple-500/20 hover:border-purple-500/30 transition-all duration-300 bg-background/60 backdrop-blur-xl shadow-lg">
+              <CardHeader>
+                <CardTitle className="text-xl sm:text-2xl flex items-center">
+                  <div className="flex items-center space-x-3">
+                    <div className="h-3 w-3 bg-blue-500 rounded-full animate-pulse"></div>
+                    <span className="bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent">
+                      Strategy Preview
+                    </span>
+                  </div>
+                </CardTitle>
+                <p className="text-muted-foreground mt-2">Review your complete strategy configuration</p>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="p-4 rounded-lg bg-background/40 border border-purple-500/20">
+                      <div className="text-sm text-muted-foreground">Entry Conditions</div>
+                      <div className="text-2xl font-bold text-green-400">
+                        {strategy.entryLong.conditionGroups.length + strategy.entryShort.conditionGroups.length}
+                      </div>
+                    </div>
+                    <div className="p-4 rounded-lg bg-background/40 border border-purple-500/20">
+                      <div className="text-sm text-muted-foreground">Exit Conditions</div>
+                      <div className="text-2xl font-bold text-orange-400">
+                        {strategy.exitLong.conditionGroups.length + strategy.exitShort.conditionGroups.length}
+                      </div>
+                    </div>
+                    <div className="p-4 rounded-lg bg-background/40 border border-purple-500/20">
+                      <div className="text-sm text-muted-foreground">Risk Rules</div>
+                      <div className="text-2xl font-bold text-yellow-400">
+                        {(strategy.riskManagement.stopLoss?.length || 0) +
+                          (strategy.riskManagement.takeProfit?.length || 0)}
+                      </div>
+                    </div>
+                    <div className="p-4 rounded-lg bg-background/40 border border-purple-500/20">
+                      <div className="text-sm text-muted-foreground">Completion</div>
+                      <div className="text-2xl font-bold text-purple-400">{Math.round(getCompletionProgress())}%</div>
+                    </div>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
