@@ -78,9 +78,7 @@
     min-height: 100%;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
-html,body{
-    scroll-behavior: smooth
-}
+
   body {
     @apply bg-background text-foreground antialiased;
     background: linear-gradient(135deg, #0f0a1a 0%, #1a0d2e 25%, #2d1b4e 50%, #1a0d2e 75%, #0f0a1a 100%);
@@ -413,13 +411,15 @@ input[type="text"]:focus {
   border: 1px solid rgba(139, 92, 246, 0.3) !important;
 }
 
-/* FIXED: Tab styling improvements with dark purple theme */
+/* ENHANCED: Main Tab styling improvements with dark purple theme */
 .tabs-list,
 [role="tablist"] {
-  background: rgba(15, 10, 26, 0.8) !important;
-  border: 1px solid rgba(139, 92, 246, 0.2) !important;
-  border-radius: 0.75rem !important;
-  padding: 0.25rem !important;
+  background: rgba(15, 10, 26, 0.9) !important;
+  border: 1px solid rgba(139, 92, 246, 0.3) !important;
+  border-radius: 1rem !important;
+  padding: 0.375rem !important;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.15) !important;
+  backdrop-filter: blur(20px) !important;
 }
 
 .tab-trigger,
@@ -427,48 +427,99 @@ input[type="text"]:focus {
   background: transparent !important;
   color: rgba(255, 255, 255, 0.6) !important;
   border: none !important;
-  border-radius: 0.5rem !important;
-  padding: 0.5rem 1rem !important;
-  font-weight: 500 !important;
-  transition: all 0.2s ease !important;
+  border-radius: 0.75rem !important;
+  padding: 0.75rem 1.25rem !important;
+  font-weight: 600 !important;
+  font-size: 0.875rem !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.tab-trigger::before,
+[role="tab"]::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(168, 85, 247, 0.05)) !important;
+  opacity: 0 !important;
+  transition: opacity 0.3s ease !important;
+  border-radius: 0.75rem !important;
+}
+
+.tab-trigger:hover::before,
+[role="tab"]:hover::before {
+  opacity: 1 !important;
 }
 
 .tab-trigger[data-state="active"],
 [role="tab"][data-state="active"],
 [role="tab"][aria-selected="true"] {
-  background: rgba(139, 92, 246, 0.2) !important;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.25) 0%, rgba(168, 85, 247, 0.15) 100%) !important;
   color: rgba(255, 255, 255, 0.95) !important;
   border: 1px solid rgba(139, 92, 246, 0.4) !important;
-  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.15) !important;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+  transform: translateY(-1px) !important;
 }
 
 .tab-trigger:hover,
 [role="tab"]:hover {
-  background: rgba(139, 92, 246, 0.1) !important;
-  color: rgba(255, 255, 255, 0.8) !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+  transform: translateY(-1px) !important;
 }
 
-/* FIXED: Modern Pill-Shaped Toggle Switch with Dark Purple Theme */
+/* Mobile tab adjustments */
+@media (max-width: 768px) {
+  .tabs-list,
+  [role="tablist"] {
+    padding: 0.25rem !important;
+    border-radius: 0.875rem !important;
+  }
+
+  .tab-trigger,
+  [role="tab"] {
+    padding: 0.625rem 1rem !important;
+    font-size: 0.8rem !important;
+    border-radius: 0.625rem !important;
+  }
+}
+
+/* FIXED: Compact Mobile-Friendly Toggle Switch with Dark Purple Theme */
 [data-radix-switch-root],
 button[role="switch"] {
   background: rgba(60, 60, 80, 0.4) !important;
   border: 1px solid rgba(100, 100, 120, 0.3) !important;
   cursor: pointer !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  width: 48px !important;
-  height: 26px !important;
-  border-radius: 13px !important;
+  width: 36px !important;
+  height: 20px !important;
+  border-radius: 10px !important;
   position: relative !important;
-  display: flex !important;
+  display: inline-flex !important;
   align-items: center !important;
-  padding: 2px !important;
+  padding: 1px !important;
   box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+  flex-shrink: 0 !important;
+  min-width: 36px !important;
+  max-width: 36px !important;
+}
+
+/* Mobile specific sizing - even smaller */
+@media (max-width: 768px) {
+  [data-radix-switch-root],
+  button[role="switch"] {
+    width: 32px !important;
+    height: 18px !important;
+    border-radius: 9px !important;
+    min-width: 32px !important;
+    max-width: 32px !important;
+  }
 }
 
 [data-radix-switch-root][data-state="checked"],
 button[role="switch"][data-state="checked"],
 button[role="switch"][aria-checked="true"] {
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.6) 0%, rgba(168, 85, 247, 0.5) 100%) !important;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.7) 0%, rgba(168, 85, 247, 0.6) 100%) !important;
   border: 1px solid rgba(139, 92, 246, 0.6) !important;
   box-shadow: inset 0 1px 3px rgba(139, 92, 246, 0.3), 0 0 0 2px rgba(139, 92, 246, 0.1), 0 2px 8px
     rgba(139, 92, 246, 0.2) !important;
@@ -484,7 +535,7 @@ button[role="switch"]:hover {
 [data-radix-switch-root][data-state="checked"]:hover,
 button[role="switch"][data-state="checked"]:hover,
 button[role="switch"][aria-checked="true"]:hover {
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.7) 0%, rgba(168, 85, 247, 0.6) 100%) !important;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.8) 0%, rgba(168, 85, 247, 0.7) 100%) !important;
   border-color: rgba(139, 92, 246, 0.7) !important;
   box-shadow: inset 0 1px 3px rgba(139, 92, 246, 0.4), 0 0 0 2px rgba(139, 92, 246, 0.15), 0 4px 12px
     rgba(139, 92, 246, 0.3) !important;
@@ -494,9 +545,9 @@ button[role="switch"][aria-checked="true"]:hover {
 button[role="switch"] span {
   background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%) !important;
   cursor: pointer !important;
-  width: 22px !important;
-  height: 22px !important;
-  border-radius: 11px !important;
+  width: 16px !important;
+  height: 16px !important;
+  border-radius: 8px !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
   border: none !important;
@@ -505,12 +556,31 @@ button[role="switch"] span {
   transform: translateX(0) !important;
 }
 
+/* Mobile specific thumb sizing */
+@media (max-width: 768px) {
+  [data-radix-switch-thumb],
+  button[role="switch"] span {
+    width: 14px !important;
+    height: 14px !important;
+    border-radius: 7px !important;
+  }
+}
+
 [data-radix-switch-thumb][data-state="checked"],
 button[role="switch"][data-state="checked"] span,
 button[role="switch"][aria-checked="true"] span {
   background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%) !important;
-  transform: translateX(22px) !important;
+  transform: translateX(16px) !important;
   box-shadow: 0 2px 6px rgba(139, 92, 246, 0.3), 0 1px 3px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Mobile specific checked position */
+@media (max-width: 768px) {
+  [data-radix-switch-thumb][data-state="checked"],
+  button[role="switch"][data-state="checked"] span,
+  button[role="switch"][aria-checked="true"] span {
+    transform: translateX(14px) !important;
+  }
 }
 
 /* Active state glow effect */
@@ -520,11 +590,20 @@ button[role="switch"][aria-checked="true"]::before {
   content: "" !important;
   position: absolute !important;
   inset: -2px !important;
-  border-radius: 15px !important;
+  border-radius: 12px !important;
   background: linear-gradient(135deg, rgba(139, 92, 246, 0.3), rgba(168, 85, 247, 0.2)) !important;
   z-index: -1 !important;
   opacity: 0.6 !important;
   filter: blur(4px) !important;
+}
+
+/* Mobile specific glow */
+@media (max-width: 768px) {
+  [data-radix-switch-root][data-state="checked"]::before,
+  button[role="switch"][data-state="checked"]::before,
+  button[role="switch"][aria-checked="true"]::before {
+    border-radius: 11px !important;
+  }
 }
 
 /* Focus states */
@@ -538,6 +617,24 @@ button[role="switch"]:focus-visible {
 button[role="switch"][data-state="checked"]:focus-visible {
   box-shadow: inset 0 1px 3px rgba(139, 92, 246, 0.3), 0 0 0 2px rgba(139, 92, 246, 0.1), 0 2px 8px
     rgba(139, 92, 246, 0.2), 0 0 0 3px rgba(139, 92, 246, 0.4) !important;
+}
+
+/* Ensure toggle switches don't expand containers and stay compact */
+.flex.items-center.justify-between {
+  align-items: center !important;
+}
+
+.flex.items-center.justify-between [data-radix-switch-root],
+.flex.items-center.justify-between button[role="switch"] {
+  flex-shrink: 0 !important;
+  margin-left: auto !important;
+}
+
+/* Fix for toggle in specific layouts */
+.flex.items-center.space-x-3 [data-radix-switch-root],
+.flex.items-center.space-x-3 button[role="switch"] {
+  flex-shrink: 0 !important;
+  margin-left: auto !important;
 }
 
 /* Enhanced Slider Styling */
@@ -701,29 +798,61 @@ label {
   }
 }
 
-/* ADDITIONAL: Fix for sub-tabs in Risk Management */
+/* ENHANCED: Sub-tabs in Risk Management with better styling */
 .space-y-4 .grid.grid-cols-3.gap-2 button,
 .space-y-4 .flex.gap-2 button {
-  background: rgba(45, 27, 78, 0.4) !important;
+  background: rgba(15, 10, 26, 0.6) !important;
   color: rgba(255, 255, 255, 0.7) !important;
   border: 1px solid rgba(139, 92, 246, 0.2) !important;
-  border-radius: 0.5rem !important;
-  padding: 0.5rem 1rem !important;
+  border-radius: 0.75rem !important;
+  padding: 0.75rem 1rem !important;
   font-weight: 500 !important;
-  transition: all 0.2s ease !important;
+  font-size: 0.875rem !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  position: relative !important;
+  overflow: hidden !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+.space-y-4 .grid.grid-cols-3.gap-2 button::before,
+.space-y-4 .flex.gap-2 button::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(168, 85, 247, 0.05)) !important;
+  opacity: 0 !important;
+  transition: opacity 0.3s ease !important;
+  border-radius: 0.75rem !important;
 }
 
 .space-y-4 .grid.grid-cols-3.gap-2 button:hover,
 .space-y-4 .flex.gap-2 button:hover {
-  background: rgba(139, 92, 246, 0.2) !important;
+  background: rgba(139, 92, 246, 0.15) !important;
   color: rgba(255, 255, 255, 0.9) !important;
   border-color: rgba(139, 92, 246, 0.4) !important;
+  transform: translateY(-1px) !important;
+}
+
+.space-y-4 .grid.grid-cols-3.gap-2 button:hover::before,
+.space-y-4 .flex.gap-2 button:hover::before {
+  opacity: 1 !important;
 }
 
 .space-y-4 .grid.grid-cols-3.gap-2 button[data-active="true"],
 .space-y-4 .flex.gap-2 button[data-active="true"] {
-  background: rgba(139, 92, 246, 0.3) !important;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.25) 0%, rgba(168, 85, 247, 0.15) 100%) !important;
   color: rgba(255, 255, 255, 0.95) !important;
   border-color: rgba(139, 92, 246, 0.5) !important;
-  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.2) !important;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Mobile adjustments for sub-tabs */
+@media (max-width: 768px) {
+  .space-y-4 .grid.grid-cols-3.gap-2 button,
+  .space-y-4 .flex.gap-2 button {
+    padding: 0.625rem 0.75rem !important;
+    font-size: 0.8rem !important;
+    border-radius: 0.625rem !important;
+  }
 }

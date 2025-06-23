@@ -11,12 +11,23 @@ import { emailjsConfig } from "./config/emailjs"
 
 import { ThemeProvider } from "@/components/theme-provider"
 import { MobileNav } from "@/components/ui/mobile-nav"
-import { MessageSquare } from "lucide-react"
+import { 
+  MessageSquare, 
+  LayoutDashboard, 
+  Store, 
+  Settings, 
+  LineChart, 
+  Code, 
+  ChevronLeft, 
+  ChevronRight,
+  Upload
+} from "lucide-react"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import ModernNavbar from "@/components/ui/ModernNavbar"
+import { cn } from "@/lib/utils"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -103,7 +114,8 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
       "/strategy-choice",
       "/backtest-satisfaction",
       "/profile",
-      "/strategy/upload"
+      "/strategy/upload",
+      "/strategy"
     ]
 
     const isAuthRoute = authenticatedRoutes.some((route) => pathname?.startsWith(route))
@@ -112,62 +124,92 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
     setIsAuthenticated(isAuthRoute && !isAuthPage)
   }, [pathname])
 
+  const navLinks = [
+    { href: "/dashboard", icon: LayoutDashboard, text: "Dashboard" },
+    { href: "/marketplace", icon: Store, text: "Marketplace" },
+    { href: "/builder", icon: Code, text: "Builder" },
+    { href: "/backtest", icon: LineChart, text: "Backtest" },
+    { href: "/settings", icon: Settings, text: "Settings" },
+  ]
+
   return (
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
       <div className="min-h-screen flex">
         {/* Sidebar for authenticated users */}
         {isAuthenticated && (
-          <aside className={`hidden md:flex flex-col h-screen bg-background border-r border-primary/10 sticky top-0 z-40 transition-all duration-300 ${sidebarCollapsed ? 'w-16 p-2' : 'w-64 p-6'}`}>
+          <aside className={cn(
+            "hidden md:flex flex-col h-screen bg-background border-r border-primary/10 sticky top-0 z-40 transition-all duration-300",
+            sidebarCollapsed ? "w-20" : "w-64"
+          )}>
+            <div className="flex items-center justify-center h-20 border-b border-primary/10">
+              <Link href="/dashboard" className="flex items-center space-x-2">
+                 <svg width="32" height="32" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="8" y="20" width="3" height="10" rx="1.5" fill="#2196F3"/>
+                  <rect x="13" y="14" width="3" height="10" rx="1.5" fill="#2196F3"/>
+                  <rect x="18" y="8" width="3" height="10" rx="1.5" fill="#2196F3"/>
+                  <rect x="23" y="8" width="3" height="10" rx="1.5" fill="#F44336"/>
+                  <rect x="28" y="14" width="3" height="10" rx="1.5" fill="#F44336"/>
+                  <rect x="33" y="20" width="3" height="10" rx="1.5" fill="#F44336"/>
+                </svg>
+                {!sidebarCollapsed && <span className="font-bold text-lg">Trade Crafter</span>}
+              </Link>
+            </div>
+
             {/* Collapse/Expand button */}
             <button
-              className={`self-end mb-4 p-1 rounded hover:bg-primary/10 transition-colors ${sidebarCollapsed ? 'mx-auto' : ''}`}
+              className="absolute -right-3 top-24 transform -translate-y-1/2 bg-background border border-primary/20 rounded-full p-1.5 shadow-md hover:bg-primary/10 transition-colors z-50"
               aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
               onClick={() => setSidebarCollapsed((prev) => !prev)}
             >
-              {sidebarCollapsed ? (
-                <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-              ) : (
-                <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
-              )}
+              {sidebarCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
             </button>
-            {/* Profile section - hidden when collapsed */}
-            {!sidebarCollapsed && (
-              <div className="flex flex-col items-center mb-8">
-                <Avatar className="h-16 w-16 mb-2">
-                  <AvatarImage src="/placeholder-user.jpg" alt="User" />
-                  <AvatarFallback>U</AvatarFallback>
-                </Avatar>
-                <span className="font-semibold text-lg">Alex Morgan</span>
-                <span className="text-xs text-muted-foreground">alex@example.com</span>
-              </div>
-            )}
+
+            {/* Profile section */}
+            <div className={cn(
+              "flex flex-col items-center mt-8 transition-opacity duration-300",
+              sidebarCollapsed ? "opacity-0 h-0" : "opacity-100 h-auto"
+            )}>
+              <Avatar className="h-16 w-16 mb-2">
+                <AvatarImage src="/placeholder-user.jpg" alt="User" />
+                <AvatarFallback>U</AvatarFallback>
+              </Avatar>
+              <span className="font-semibold text-lg">Alex Morgan</span>
+              <span className="text-xs text-muted-foreground">alex@example.com</span>
+            </div>
+
             {/* Navigation links */}
-            <nav className="flex flex-col gap-3 mt-4">
-              <Link href="/dashboard" className={`flex items-center justify-center rounded-md hover:bg-primary/10 transition-colors h-12 ${sidebarCollapsed ? '' : 'px-3 py-2 gap-2 justify-start'}`}> 
-                <svg width="20" height="20" fill="none" stroke="#2196F3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="8" width="4" height="10" rx="1.5"/><rect x="8" y="4" width="4" height="14" rx="1.5"/><rect x="14" y="10" width="4" height="8" rx="1.5"/></svg>
-                {!sidebarCollapsed && <span>Dashboard</span>}
-              </Link>
-              <Link href="/marketplace" className={`flex items-center justify-center rounded-md hover:bg-primary/10 transition-colors h-12 ${sidebarCollapsed ? '' : 'px-3 py-2 gap-2 justify-start'}`}>
-                <svg width="20" height="20" fill="none" stroke="#2196F3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="10" cy="10" r="8"/></svg>
-                {!sidebarCollapsed && <span>Marketplace</span>}
-              </Link>
-              <Link href="/builder" className={`flex items-center justify-center rounded-md hover:bg-primary/10 transition-colors h-12 ${sidebarCollapsed ? '' : 'px-3 py-2 gap-2 justify-start'}`}>
-                <svg width="20" height="20" fill="none" stroke="#2196F3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="4" width="12" height="12" rx="2"/></svg>
-                {!sidebarCollapsed && <span>Builder</span>}
-              </Link>
-              <Link href="/backtest" className={`flex items-center justify-center rounded-md hover:bg-primary/10 transition-colors h-12 ${sidebarCollapsed ? '' : 'px-3 py-2 gap-2 justify-start'}`}>
-                <svg width="20" height="20" fill="none" stroke="#2196F3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 17v-2a4 4 0 014-4h8"/><circle cx="16" cy="17" r="2"/></svg>
-                {!sidebarCollapsed && <span>Backtest</span>}
-              </Link>
-              <Link href="/settings" className={`flex items-center justify-center rounded-md hover:bg-primary/10 transition-colors h-12 ${sidebarCollapsed ? '' : 'px-3 py-2 gap-2 justify-start'}`}>
-                <svg width="20" height="20" fill="none" stroke="#2196F3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="10" cy="10" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33h.09A1.65 1.65 0 008 3.09V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51h.09a1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82v.09c.2.63.77 1.09 1.51 1.09H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
-                {!sidebarCollapsed && <span>Settings</span>}
-              </Link>
-              <Link href="/strategy/upload" className={`flex items-center justify-center mt-4 rounded-md bg-gradient-to-r from-yellow-400 via-primary to-purple-400 text-zinc-900 font-bold shadow-lg hover:scale-105 transition-transform text-center h-12 ${sidebarCollapsed ? '' : 'px-3 py-2 gap-2 justify-start'}`}>
-                <svg width="20" height="20" fill="none" stroke="#F44336" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14m7-7H5"/></svg>
+            <nav className="flex flex-col gap-2 mt-8 px-4">
+              {navLinks.map((link) => {
+                const isActive = pathname?.startsWith(link.href)
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className={cn(
+                      "flex items-center h-12 rounded-lg text-muted-foreground hover:bg-primary/5 hover:text-primary transition-all duration-200 relative",
+                      isActive && "bg-primary/10 text-primary font-semibold",
+                      sidebarCollapsed ? "justify-center" : "px-4 gap-4"
+                    )}
+                  >
+                    <link.icon className="h-6 w-6" />
+                    {!sidebarCollapsed && <span>{link.text}</span>}
+                    {isActive && (
+                      <div className="absolute left-0 top-1/2 -translate-y-1/2 h-6 w-1 bg-primary rounded-r-full" />
+                    )}
+                  </Link>
+                )
+              })}
+            </nav>
+
+            <div className="mt-auto p-4">
+              <Link href="/strategy/upload" className={cn(
+                "flex items-center justify-center h-12 rounded-lg bg-gradient-to-r from-yellow-400 via-primary to-purple-400 text-zinc-900 font-bold shadow-lg hover:scale-105 transition-transform",
+                sidebarCollapsed ? "" : "gap-3"
+              )}>
+                <Upload className="h-6 w-6" />
                 {!sidebarCollapsed && <span>Upload Strategy</span>}
               </Link>
-            </nav>
+            </div>
           </aside>
         )}
         <div className="flex-1 flex flex-col min-h-screen">
@@ -269,7 +311,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
             {children}
           </main>
 
-          {/* Feedback Form */}
+          {/* Feedback Form 
           <div className="mt-8 rounded-lg border p-6 max-w-lg mx-auto">
             <div className="flex items-center space-x-3">
               <MessageSquare className="h-6 w-6 text-primary" />
@@ -300,8 +342,8 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
             >
               Submit Feedback
             </Button>
-          </div>
-        </div>
+            </div> */}
+        </div> 
       </div>
     </ThemeProvider>
   )

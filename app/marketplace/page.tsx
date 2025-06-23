@@ -151,140 +151,82 @@ export default function StrategyMarketplacePage() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {/* Strategy Cards */}
-              <Card className="group overflow-hidden border-primary/10 bg-primary/5 backdrop-blur-sm transition-all hover:shadow-lg hover:shadow-primary/10">
-          <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <div className="flex items-center gap-2">
-            <CardTitle>Premium Moving Average Crossover</CardTitle>
-                        <Badge variant="secondary" className="bg-primary/10">Premium</Badge>
-                      </div>
-                      <CardDescription>A refined trend-following strategy</CardDescription>
+        {[
+          {
+            title: "Premium Moving Average Crossover",
+            slug: "premium-ma-crossover",
+            badge: "Premium",
+            description: "A refined trend-following strategy",
+            longDescription: "Advanced trend-following strategy with enhanced risk management.",
+            rating: 4.9,
+            reviews: 128,
+          },
+          {
+            title: "RSI Momentum Strategy",
+            slug: "rsi-momentum",
+            badge: "Popular",
+            description: "Advanced momentum detection",
+            longDescription: "Sophisticated RSI-based strategy for momentum trading.",
+            rating: 4.8,
+            reviews: 95,
+          },
+          {
+            title: "MACD Divergence Strategy",
+            slug: "macd-divergence",
+            badge: "New",
+            description: "Professional trend reversal detection",
+            longDescription: "Advanced MACD divergence strategy for market reversals.",
+            rating: 4.7,
+            reviews: 64,
+          },
+        ].map((strategy) => (
+          <Link key={strategy.slug} href={`/strategy/${strategy.slug}`} className="block transition-all hover:scale-[1.02]">
+            <Card className="group h-full cursor-pointer overflow-hidden border-primary/10 bg-primary/5 backdrop-blur-sm transition-all hover:shadow-lg hover:shadow-primary/10">
+              <CardHeader>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <CardTitle>{strategy.title}</CardTitle>
+                      {strategy.badge && <Badge variant="secondary" className="bg-primary/10">{strategy.badge}</Badge>}
                     </div>
+                    <CardDescription>{strategy.description}</CardDescription>
                   </div>
-          </CardHeader>
-          <CardContent>
-                  <div className="flex items-center justify-center py-6">
-                    <BarChart4 className="h-20 w-20 text-primary group-hover:scale-110 transition-transform" />
-            </div>
-                  <div className="space-y-3">
-            <p className="text-sm text-muted-foreground">
-                      Advanced trend-following strategy with enhanced risk management.
-                    </p>
-                    <div className="flex items-center space-x-2">
-                      <div className="flex">
-                        {[...Array(5)].map((_, i) => (
-                          <Star key={i} className="h-4 w-4 text-yellow-500 fill-yellow-500" />
-                        ))}
-                      </div>
-                      <span className="text-sm">4.9 (128 reviews)</span>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-center py-6">
+                  <BarChart4 className="h-20 w-20 text-primary group-hover:scale-110 transition-transform" />
+                </div>
+                <div className="space-y-3">
+                  <p className="text-sm text-muted-foreground">
+                    {strategy.longDescription}
+                  </p>
+                  <div className="flex items-center space-x-2">
+                    <div className="flex">
+                      {[...Array(5)].map((_, i) => (
+                        <Star key={i} className={`h-4 w-4 text-yellow-500 ${i < Math.round(strategy.rating) ? 'fill-yellow-500' : 'fill-transparent'}`} />
+                      ))}
                     </div>
+                    <span className="text-sm">{strategy.rating} ({strategy.reviews} reviews)</span>
                   </div>
-          </CardContent>
-                <CardFooter className="flex flex-col space-y-2">
-            <Button asChild className="w-full">
-              <Link href={`/strategy/premium-ma-crossover`}>
-                Purchase Strategy <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-                  <Button variant="outline" className="w-full">
-                    <Link href={`/strategy/premium-ma-crossover`}>
-                      View Details
-                    </Link>
-                  </Button>
-          </CardFooter>
-        </Card>
-
-              {/* Additional Strategy Cards with similar styling */}
-              <Card className="group overflow-hidden border-primary/10 bg-primary/5 backdrop-blur-sm transition-all hover:shadow-lg hover:shadow-primary/10">
-          <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <div className="flex items-center gap-2">
-            <CardTitle>RSI Momentum Strategy</CardTitle>
-                        <Badge variant="secondary" className="bg-primary/10">Popular</Badge>
-                      </div>
-                      <CardDescription>Advanced momentum detection</CardDescription>
-                    </div>
+                </div>
+              </CardContent>
+              <CardFooter className="flex flex-col space-y-2 invisible">
+                <Button asChild className="w-full">
+                  <div>
+                    Purchase Strategy <ArrowRight className="ml-2 h-4 w-4" />
                   </div>
-          </CardHeader>
-          <CardContent>
-                  <div className="flex items-center justify-center py-6">
-                    <BarChart4 className="h-20 w-20 text-primary group-hover:scale-110 transition-transform" />
-            </div>
-                  <div className="space-y-3">
-            <p className="text-sm text-muted-foreground">
-                      Sophisticated RSI-based strategy for momentum trading.
-                    </p>
-                    <div className="flex items-center space-x-2">
-                      <div className="flex">
-                        {[...Array(5)].map((_, i) => (
-                          <Star key={i} className="h-4 w-4 text-yellow-500 fill-yellow-500" />
-                        ))}
-                      </div>
-                      <span className="text-sm">4.8 (95 reviews)</span>
-                    </div>
+                </Button>
+                <Button variant="outline" className="w-full">
+                  <div>
+                    View Details
                   </div>
-          </CardContent>
-                <CardFooter className="flex flex-col space-y-2">
-            <Button asChild className="w-full">
-              <Link href={`/strategy/rsi-momentum`}>
-                Purchase Strategy <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-                  <Button variant="outline" className="w-full">
-                    <Link href={`/strategy/rsi-momentum`}>
-                      View Details
-                    </Link>
-                  </Button>
-          </CardFooter>
-        </Card>
-
-              <Card className="group overflow-hidden border-primary/10 bg-primary/5 backdrop-blur-sm transition-all hover:shadow-lg hover:shadow-primary/10">
-          <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <div className="flex items-center gap-2">
-            <CardTitle>MACD Divergence Strategy</CardTitle>
-                        <Badge variant="secondary" className="bg-primary/10">New</Badge>
-                      </div>
-                      <CardDescription>Professional trend reversal detection</CardDescription>
-                    </div>
-                  </div>
-          </CardHeader>
-          <CardContent>
-                  <div className="flex items-center justify-center py-6">
-                    <BarChart4 className="h-20 w-20 text-primary group-hover:scale-110 transition-transform" />
-            </div>
-                  <div className="space-y-3">
-            <p className="text-sm text-muted-foreground">
-                      Advanced MACD divergence strategy for market reversals.
-                    </p>
-                    <div className="flex items-center space-x-2">
-                      <div className="flex">
-                        {[...Array(5)].map((_, i) => (
-                          <Star key={i} className="h-4 w-4 text-yellow-500 fill-yellow-500" />
-                        ))}
-                      </div>
-                      <span className="text-sm">4.7 (64 reviews)</span>
-                    </div>
-                  </div>
-          </CardContent>
-                <CardFooter className="flex flex-col space-y-2">
-            <Button asChild className="w-full">
-              <Link href={`/strategy/macd-divergence`}>
-                Purchase Strategy <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-                  <Button variant="outline" className="w-full">
-              <Link href={`/strategy/macd-divergence`}>
-                View Details 
-              </Link>
-            </Button>
-          </CardFooter>
-        </Card>
-            </div>
+                </Button>
+              </CardFooter>
+            </Card>
+          </Link>
+        ))}
+      </div>
           </div>
         </div>
       </div>
