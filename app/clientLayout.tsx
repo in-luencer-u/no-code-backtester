@@ -311,8 +311,8 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
             {children}
           </main>
 
-          {/* Feedback Form 
-          <div className="mt-8 rounded-lg border p-6 max-w-lg mx-auto">
+       
+          <div className="mt-6 mb-3 rounded-lg  border p-6 max-w-lg mx-auto bg-black">
             <div className="flex items-center space-x-3">
               <MessageSquare className="h-6 w-6 text-primary" />
               <h3 className="text-lg font-semibold">We Value Your Feedback</h3>
@@ -322,14 +322,14 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
             </p>
             <Textarea
               id="feedback-textarea"
-              className="mt-3 w-full resize-none"
+              className="mt-3 w-full resize-none border-purple-900"
               placeholder="Your feedback helps us improve..."
               rows={4}
             />
             <Button
               variant="outline"
               size="default"
-              className="mt-3 w-full"
+              className="mt-3 w-full bg-purple-800"
               onClick={() => {
                 const feedbackElement = document.getElementById("feedback-textarea") as HTMLTextAreaElement
                 const feedback = feedbackElement?.value || ""
@@ -342,7 +342,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
             >
               Submit Feedback
             </Button>
-            </div> */}
+            </div> 
         </div> 
       </div>
     </ThemeProvider>

@@ -15,7 +15,7 @@ interface EntryExitNodeProps {
   title?: string
 }
 
-const EntryExitNode = ({ positionRule, onChange, title = "Entry/Exit Rules" }: EntryExitNodeProps) => {
+const EntryExitNode = ({ positionRule, onChange, title = "" }: EntryExitNodeProps) => {
   const groups = positionRule.conditionGroups
 
   const addConditionGroup = () => {
@@ -67,9 +67,9 @@ const EntryExitNode = ({ positionRule, onChange, title = "Entry/Exit Rules" }: E
                 <div className="flex items-center space-x-3">
                   <div className="flex items-center space-x-2">
                     <div className="h-3 w-3 bg-purple-500 rounded-full animate-pulse"></div>
-                    <CardTitle className="text-lg font-semibold bg-gradient-to-r from-purple-400 to-purple-600 bg-clip-text text-transparent">
-                      {title} Group {groupIndex + 1}
-                    </CardTitle>
+                  {/*  <CardTitle className="text-lg font-semibold bg-gradient-to-r from-purple-400 to-purple-600 bg-clip-text text-transparent">
+                   {title} Group {groupIndex + 1 } 
+                    </CardTitle> */}
                   </div>
                   <TooltipProvider>
                     <Tooltip>

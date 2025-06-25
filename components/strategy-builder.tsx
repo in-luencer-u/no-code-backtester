@@ -426,7 +426,7 @@ export default function StrategyBuilder() {
 
           {/* Enhanced Progress and Status Section */}
           <motion.div className="grid grid-cols-1 lg:grid-cols-2 gap-6" variants={fadeInUp}>
-            {/* Progress Card */}
+            {/* Progress Card 
             <Card className="border-purple-500/20 hover:border-purple-500/30 transition-all duration-300 bg-background/60 backdrop-blur-xl shadow-lg">
               <CardContent className="pt-6 pb-6">
                 <div className="flex items-center justify-between mb-4">
@@ -457,9 +457,9 @@ export default function StrategyBuilder() {
                     : "Complete all sections to unlock backtesting"}
                 </p>
               </CardContent>
-            </Card>
+            </Card>*/}
 
-            {/* Status and Feedback Card */}
+            {/* Status and Feedback Card 
             <Card className="border-purple-500/20 hover:border-purple-500/30 transition-all duration-300 bg-background/60 backdrop-blur-xl shadow-lg">
               <CardContent className="pt-6 pb-6">
                 <div className="flex items-center justify-between mb-4">
@@ -504,7 +504,7 @@ export default function StrategyBuilder() {
                   )}
                 </div>
               </CardContent>
-            </Card>
+            </Card>*/}
           </motion.div>
 
           {/* Enhanced Feedback Alerts */}
@@ -762,16 +762,15 @@ export default function StrategyBuilder() {
             </TabsContent>
           </Tabs>
         </motion.div>
+        
 
-        {/* ENHANCED FEEDBACK SECTION - This replaces the basic one you showed me */}
-        <motion.div
-          className="mt-16 mb-8"
-          variants={fadeInUp}
-          initial="initial"
-          animate={isVisible ? "animate" : "initial"}
-        >
+        {/* ENHANCED FEEDBACK SECTION - This replaces the basic one you showed me 
+        <div className="mt-12 mb-8">
+          <hr className="border-t-2 border-primary/30 my-8" />
+        </div>
+        <div className="rounded-2xl bg-background shadow-xl p-8">
           <EnhancedFeedbackSection />
-        </motion.div>
+        </div>*/}
       </div>
     </div>
   )
