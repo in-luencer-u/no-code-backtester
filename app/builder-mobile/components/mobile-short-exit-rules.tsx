@@ -1,130 +1,31 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
-import { Plus, Trash2, Settings, Zap, Target, Info } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { TrendingDown, Plus, Trash2, Settings, Zap, Target, ChevronDown, ChevronUp } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Badge } from "@/components/ui/badge"
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Slider } from "@/components/ui/slider"
 import type { ConditionGroup, IndicatorCondition, PositionRule, IndicatorType, IndicatorLogic } from "@/components/strategy-builder/types"
+import { indicatorMetadata } from "@/components/strategy-builder/indicator-metadata"
 
-interface MobileIndicatorBuilderProps {
+interface MobileShortExitRulesProps {
   positionRule: PositionRule
   onChange: (updatedRule: PositionRule) => void
-  title?: string
 }
 
-// Enhanced indicator options for mobile with all indicators from main builder
-const MOBILE_INDICATORS = [
-  { value: "rsi", label: "RSI", description: "Relative Strength Index", category: "Oscillators" },
-  { value: "macd", label: "MACD", description: "Moving Average Convergence Divergence", category: "Trend" },
-  { value: "sma", label: "SMA", description: "Simple Moving Average", category: "Moving Averages" },
-  { value: "ema", label: "EMA", description: "Exponential Moving Average", category: "Moving Averages" },
-  { value: "wma", label: "WMA", description: "Weighted Moving Average", category: "Moving Averages" },
-  { value: "bollinger", label: "Bollinger Bands", description: "Bollinger Bands", category: "Volatility" },
-  { value: "stochastic", label: "Stochastic", description: "Stochastic Oscillator", category: "Oscillators" },
-  { value: "adx", label: "ADX", description: "Average Directional Index", category: "Trend" },
-  { value: "atr", label: "ATR", description: "Average True Range", category: "Volatility" },
-  { value: "supertrend", label: "SuperTrend", description: "SuperTrend Indicator", category: "Trend" },
-  { value: "ichimoku", label: "Ichimoku", description: "Ichimoku Cloud", category: "Trend" },
-  { value: "volume", label: "Volume", description: "Volume Analysis", category: "Volume" },
-  { value: "momentum", label: "Momentum", description: "Momentum Indicator", category: "Oscillators" },
-  { value: "williams_r", label: "Williams %R", description: "Williams %R", category: "Oscillators" },
-  { value: "cci", label: "CCI", description: "Commodity Channel Index", category: "Oscillators" },
-  { value: "roc", label: "ROC", description: "Rate of Change", category: "Oscillators" },
-  { value: "vwap", label: "VWAP", description: "Volume Weighted Average Price", category: "Volume" },
-  { value: "price", label: "Price", description: "Price Action", category: "Price" },
-]
-
-// Enhanced logic options based on indicator type
-const getLogicOptions = (indicator: string): { value: IndicatorLogic; label: string }[] => {
-  const baseOptions = [
-    { value: "greater_than" as IndicatorLogic, label: "Greater than (>)" },
-    { value: "less_than" as IndicatorLogic, label: "Less than (<)" },
-    { value: "equals" as IndicatorLogic, label: "Equals (=)" },
-    { value: "crosses_above" as IndicatorLogic, label: "Crosses above" },
-    { value: "crosses_below" as IndicatorLogic, label: "Crosses below" },
-  ]
-
-  const trendOptions = [
-    { value: "bullish" as IndicatorLogic, label: "Bullish" },
-    { value: "bearish" as IndicatorLogic, label: "Bearish" },
-    { value: "strong_trend" as IndicatorLogic, label: "Strong Trend" },
-    { value: "weak_trend" as IndicatorLogic, label: "Weak Trend" },
-  ]
-
-  const oscillatorOptions = [
-    { value: "overbought" as IndicatorLogic, label: "Overbought" },
-    { value: "oversold" as IndicatorLogic, label: "Oversold" },
-    { value: "enters_overbought" as IndicatorLogic, label: "Enters Overbought" },
-    { value: "exits_overbought" as IndicatorLogic, label: "Exits Overbought" },
-    { value: "enters_oversold" as IndicatorLogic, label: "Enters Oversold" },
-    { value: "exits_oversold" as IndicatorLogic, label: "Exits Oversold" },
-  ]
-
-  const macdOptions = [
-    { value: "zero_cross_up" as IndicatorLogic, label: "Zero Cross Up" },
-    { value: "zero_cross_down" as IndicatorLogic, label: "Zero Cross Down" },
-    { value: "histogram_positive" as IndicatorLogic, label: "Histogram Positive" },
-    { value: "histogram_negative" as IndicatorLogic, label: "Histogram Negative" },
-    { value: "histogram_increasing" as IndicatorLogic, label: "Histogram Increasing" },
-    { value: "histogram_decreasing" as IndicatorLogic, label: "Histogram Decreasing" },
-  ]
-
-  const ichimokuOptions = [
-    { value: "above_cloud" as IndicatorLogic, label: "Above Cloud" },
-    { value: "below_cloud" as IndicatorLogic, label: "Below Cloud" },
-    { value: "inside_cloud" as IndicatorLogic, label: "Inside Cloud" },
-    { value: "tenkan_kijun_cross" as IndicatorLogic, label: "Tenkan/Kijun Cross" },
-  ]
-
-  const adxOptions = [
-    { value: "di_plus_above_di_minus" as IndicatorLogic, label: "DI+ Above DI-" },
-    { value: "di_plus_below_di_minus" as IndicatorLogic, label: "DI+ Below DI-" },
-  ]
-
-  const bollingerOptions = [
-    { value: "inside" as IndicatorLogic, label: "Inside Bands" },
-    { value: "outside" as IndicatorLogic, label: "Outside Bands" },
-    { value: "touches" as IndicatorLogic, label: "Touches Band" },
-  ]
-
-  const volumeOptions = [
-    { value: "above_average" as IndicatorLogic, label: "Above Average" },
-    { value: "below_average" as IndicatorLogic, label: "Below Average" },
-    { value: "spike" as IndicatorLogic, label: "Volume Spike" },
-  ]
-
-  // Return appropriate options based on indicator
-  if (["rsi", "stochastic", "williams_r", "cci", "momentum"].includes(indicator)) {
-    return [...baseOptions, ...oscillatorOptions]
-  }
-  if (indicator === "macd") {
-    return [...baseOptions, ...macdOptions]
-  }
-  if (indicator === "ichimoku") {
-    return [...baseOptions, ...ichimokuOptions, ...trendOptions]
-  }
-  if (indicator === "adx") {
-    return [...baseOptions, ...adxOptions, ...trendOptions]
-  }
-  if (indicator === "bollinger") {
-    return [...baseOptions, ...bollingerOptions]
-  }
-  if (["volume", "vwap"].includes(indicator)) {
-    return [...baseOptions, ...volumeOptions]
-  }
-  if (["sma", "ema", "wma"].includes(indicator)) {
-    return [...baseOptions, ...trendOptions]
-  }
-  
-  return baseOptions
-}
+// All available indicators from metadata
+const ALL_INDICATORS = Object.entries(indicatorMetadata).map(([key, metadata]) => ({
+  value: key,
+  label: metadata.name,
+  description: metadata.description,
+  category: metadata.category,
+}))
 
 const TIMEFRAMES = [
   { value: "1m", label: "1 Minute" },
@@ -137,37 +38,39 @@ const TIMEFRAMES = [
   { value: "1w", label: "1 Week" },
 ]
 
-// Get default parameters for indicator
-const getDefaultParams = (indicator: string) => {
-  const defaults: Record<string, any> = {
-    period: 14,
-    source: "close",
-  }
-
-  switch (indicator) {
-    case "macd":
-      return { fastPeriod: 12, slowPeriod: 26, signalPeriod: 9, source: "close" }
-    case "bollinger":
-      return { period: 20, stdDev: 2, source: "close" }
-    case "stochastic":
-      return { kPeriod: 14, dPeriod: 3, slowing: 3 }
-    case "supertrend":
-      return { period: 10, multiplier: 3 }
-    case "ichimoku":
-      return { conversionPeriod: 9, basePeriod: 26, laggingSpanPeriod: 52, displacement: 26 }
-    case "atr":
-      return { period: 14 }
-    case "adx":
-      return { period: 14 }
-    case "volume":
-      return { averageVolumeBar: 20 }
-    default:
-      return defaults
-  }
+// Get logic options for an indicator
+const getLogicOptions = (indicator: string) => {
+  const metadata = indicatorMetadata[indicator]
+  if (!metadata) return []
+  
+  return metadata.logicOptions.map(option => ({
+    value: option.value,
+    label: option.label,
+    description: option.description,
+    requiresValue: option.requiresValue,
+    defaultValue: option.defaultValue,
+  }))
 }
 
-export default function MobileIndicatorBuilder({ positionRule, onChange, title }: MobileIndicatorBuilderProps) {
-  const [expandedGroups, setExpandedGroups] = useState<string[]>([])
+// Get default parameters for indicator
+const getDefaultParams = (indicator: string) => {
+  const metadata = indicatorMetadata[indicator]
+  if (!metadata) return { period: 14, source: "close" }
+  
+  const params: Record<string, any> = {}
+  Object.entries(metadata.parameters).forEach(([key, param]) => {
+    params[key] = param.default
+  })
+  
+  return params
+}
+
+export default function MobileShortExitRules({ positionRule, onChange }: MobileShortExitRulesProps) {
+  const [expandedGroups, setExpandedGroups] = useState<string[]>(positionRule.conditionGroups.map(g => g.id))
+
+  useEffect(() => {
+    setExpandedGroups(positionRule.conditionGroups.map(g => g.id))
+  }, [positionRule.conditionGroups])
 
   const addConditionGroup = () => {
     const newGroup: ConditionGroup = {
@@ -190,7 +93,6 @@ export default function MobileIndicatorBuilder({ positionRule, onChange, title }
       conditionGroups: [...positionRule.conditionGroups, newGroup],
     })
 
-    // Auto-expand the new group
     setExpandedGroups((prev) => [...prev, newGroup.id])
   }
 
@@ -260,13 +162,45 @@ export default function MobileIndicatorBuilder({ positionRule, onChange, title }
     setExpandedGroups((prev) => (prev.includes(groupId) ? prev.filter((id) => id !== groupId) : [...prev, groupId]))
   }
 
+  const updateSecondaryIndicator = (groupId: string, conditionId: string, key: string, value: any, isType = false) => {
+    const group = positionRule.conditionGroups.find((g) => g.id === groupId)
+    if (group) {
+      const updatedCondition = group.conditions.map((c) => {
+        if (c.id === conditionId) {
+          if (isType) {
+            // When changing type, reset params to defaults
+            const meta = indicatorMetadata[value]
+            return {
+              ...c,
+              secondaryIndicator: {
+                type: value,
+                params: Object.fromEntries(Object.entries(meta?.parameters || {}).map(([k, v]) => [k, v.default]))
+              },
+            }
+          } else {
+            return {
+              ...c,
+              secondaryIndicator: {
+                ...c.secondaryIndicator,
+                params: { ...c.secondaryIndicator?.params, [key]: value },
+                type: c.secondaryIndicator?.type,
+              },
+            }
+          }
+        }
+        return c
+      })
+      updateConditionGroup(groupId, { conditions: updatedCondition })
+    }
+  }
+
   if (positionRule.conditionGroups.length === 0) {
     return (
       <div className="text-center py-8">
         <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="space-y-4">
-          <div className="p-4 rounded-lg bg-background/40 border border-purple-500/20">
-            <Target className="h-8 w-8 text-purple-400 mx-auto mb-2" />
-            <p className="text-sm text-muted-foreground mb-4">No conditions set yet</p>
+          <div className="p-4 rounded-lg bg-background/40 border border-orange-500/20">
+            <TrendingDown className="h-8 w-8 text-orange-400 mx-auto mb-2" />
+            <p className="text-sm text-muted-foreground mb-4">No short exit conditions set yet</p>
             <Button onClick={addConditionGroup} size="sm" className="btn-primary">
               <Plus className="h-4 w-4 mr-2" />
               Add First Condition
@@ -279,6 +213,19 @@ export default function MobileIndicatorBuilder({ positionRule, onChange, title }
 
   return (
     <div className="space-y-4">
+      {/* Header */}
+      <Card className="border-orange-500/20 bg-background/60 backdrop-blur-xl">
+        <CardContent className="p-4">
+          <div className="flex items-center space-x-2 mb-2">
+            <TrendingDown className="h-4 w-4 text-orange-400" />
+            <h3 className="text-sm font-medium text-orange-300">Short Exit Rules</h3>
+          </div>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            Define when to exit short positions (close sell). These conditions will trigger when all are met.
+          </p>
+        </CardContent>
+      </Card>
+
       {positionRule.conditionGroups.map((group, groupIndex) => {
         const isExpanded = expandedGroups.includes(group.id)
 
@@ -289,15 +236,15 @@ export default function MobileIndicatorBuilder({ positionRule, onChange, title }
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: groupIndex * 0.1 }}
           >
-            <Card className="border-purple-500/20 bg-background/40 backdrop-blur-xl">
+            <Card className="border-orange-500/20 bg-background/40 backdrop-blur-xl">
               <Collapsible open={isExpanded} onOpenChange={() => toggleGroup(group.id)}>
                 <CollapsibleTrigger asChild>
                   <CardHeader className="pb-3 cursor-pointer">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
-                        <div className="h-2 w-2 bg-purple-400 rounded-full" />
+                        <div className="h-2 w-2 bg-orange-400 rounded-full" />
                         <CardTitle className="text-sm">Condition Group {groupIndex + 1}</CardTitle>
-                        <Badge variant="outline" className="border-purple-500/30 text-purple-300 text-xs">
+                        <Badge variant="outline" className="border-orange-500/30 text-orange-300 text-xs">
                           {group.conditions.length} rule{group.conditions.length !== 1 ? "s" : ""}
                         </Badge>
                       </div>
@@ -331,13 +278,13 @@ export default function MobileIndicatorBuilder({ positionRule, onChange, title }
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: conditionIndex * 0.1 }}
-                        className="p-3 rounded-lg bg-background/60 border border-purple-500/20 space-y-3"
+                        className="p-3 rounded-lg bg-background/60 border border-orange-500/20 space-y-3"
                       >
                         {/* Condition Header */}
                         <div className="flex items-center justify-between">
                           <div className="flex items-center space-x-2">
-                            <Zap className="h-3 w-3 text-purple-400" />
-                            <span className="text-xs font-medium text-purple-300">Rule {conditionIndex + 1}</span>
+                            <Zap className="h-3 w-3 text-orange-400" />
+                            <span className="text-xs font-medium text-orange-300">Rule {conditionIndex + 1}</span>
                           </div>
                           {group.conditions.length > 1 && (
                             <Button
@@ -360,11 +307,11 @@ export default function MobileIndicatorBuilder({ positionRule, onChange, title }
                               updateCondition(group.id, condition.id, { indicator: value as IndicatorType })
                             }
                           >
-                            <SelectTrigger className="bg-background/80 border-purple-500/20 text-sm">
+                            <SelectTrigger className="bg-background/80 border-orange-500/20 text-sm">
                               <SelectValue />
                             </SelectTrigger>
-                            <SelectContent className="bg-background/95 backdrop-blur-xl border-purple-500/20 max-h-60">
-                              {MOBILE_INDICATORS.map((indicator) => (
+                            <SelectContent className="bg-background/95 backdrop-blur-xl border-orange-500/20 max-h-60">
+                              {ALL_INDICATORS.map((indicator) => (
                                 <SelectItem key={indicator.value} value={indicator.value}>
                                   <div>
                                     <div className="font-medium">{indicator.label}</div>
@@ -386,10 +333,10 @@ export default function MobileIndicatorBuilder({ positionRule, onChange, title }
                                 updateCondition(group.id, condition.id, { logic: value as IndicatorLogic })
                               }
                             >
-                              <SelectTrigger className="bg-background/80 border-purple-500/20 text-sm">
+                              <SelectTrigger className="bg-background/80 border-orange-500/20 text-sm">
                                 <SelectValue />
                               </SelectTrigger>
-                              <SelectContent className="bg-background/95 backdrop-blur-xl border-purple-500/20 max-h-60">
+                              <SelectContent className="bg-background/95 backdrop-blur-xl border-orange-500/20 max-h-60">
                                 {getLogicOptions(condition.indicator).map((option) => (
                                   <SelectItem key={option.value} value={option.value}>
                                     {option.label}
@@ -405,7 +352,7 @@ export default function MobileIndicatorBuilder({ positionRule, onChange, title }
                               type="number"
                               value={condition.value}
                               onChange={(e) => updateCondition(group.id, condition.id, { value: e.target.value })}
-                              className="bg-background/80 border-purple-500/20 text-sm"
+                              className="bg-background/80 border-orange-500/20 text-sm"
                               placeholder="0"
                             />
                           </div>
@@ -418,10 +365,10 @@ export default function MobileIndicatorBuilder({ positionRule, onChange, title }
                             value={condition.timeframe}
                             onValueChange={(value) => updateCondition(group.id, condition.id, { timeframe: value })}
                           >
-                            <SelectTrigger className="bg-background/80 border-purple-500/20 text-sm">
+                            <SelectTrigger className="bg-background/80 border-orange-500/20 text-sm">
                               <SelectValue />
                             </SelectTrigger>
-                            <SelectContent className="bg-background/95 backdrop-blur-xl border-purple-500/20">
+                            <SelectContent className="bg-background/95 backdrop-blur-xl border-orange-500/20">
                               {TIMEFRAMES.map((tf) => (
                                 <SelectItem key={tf.value} value={tf.value}>
                                   {tf.label}
@@ -431,10 +378,67 @@ export default function MobileIndicatorBuilder({ positionRule, onChange, title }
                           </Select>
                         </div>
 
+                        {/* Secondary Indicator */}
+                        {condition.secondaryIndicator && (
+                          <div className="space-y-2">
+                            <Label className="text-xs font-medium">Secondary Indicator</Label>
+                            <Select
+                              value={condition.secondaryIndicator.type || ""}
+                              onValueChange={value => updateSecondaryIndicator(group.id, condition.id, "type", value, true)}
+                            >
+                              <SelectTrigger className="bg-background/80 border-orange-500/20 text-sm">
+                                <SelectValue placeholder="Select indicator" />
+                              </SelectTrigger>
+                              <SelectContent className="bg-background/95 backdrop-blur-xl border-orange-500/20 max-h-60">
+                                {ALL_INDICATORS.filter(i => !String(i.label).startsWith("//")).map((indicator) => (
+                                  <SelectItem key={indicator.value} value={indicator.value}>
+                                    <div>
+                                      <div className="font-medium">{indicator.label}</div>
+                                      <div className="text-xs text-muted-foreground">{indicator.description}</div>
+                                    </div>
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            {/* Render params for selected secondary indicator */}
+                            {condition.secondaryIndicator.type && (
+                              Object.entries(indicatorMetadata[condition.secondaryIndicator.type]?.parameters || {}).map(([paramKey, param]) => (
+                                <div className="space-y-2" key={paramKey}>
+                                  <Label className="text-xs font-medium">{param.name}</Label>
+                                  {param.type === "number" ? (
+                                    <Input
+                                      type="number"
+                                      value={condition.secondaryIndicator?.params?.[paramKey] ?? param.default}
+                                      onChange={e => updateSecondaryIndicator(group.id, condition.id, paramKey, e.target.value)}
+                                      className="bg-background/80 border-orange-500/20 text-sm"
+                                    />
+                                  ) : param.type === "select" ? (
+                                    <Select
+                                      value={String(condition.secondaryIndicator?.params?.[paramKey] ?? param.default)}
+                                      onValueChange={value => updateSecondaryIndicator(group.id, condition.id, paramKey, value)}
+                                    >
+                                      <SelectTrigger className="bg-background/80 border-orange-500/20 text-sm">
+                                        <SelectValue />
+                                      </SelectTrigger>
+                                      <SelectContent className="bg-background/95 backdrop-blur-xl border-orange-500/20 max-h-60">
+                                        {(param.options as any[]).filter(opt => !String(opt.label || opt).startsWith("//")).map(opt => (
+                                          <SelectItem key={typeof opt === 'string' ? opt : opt.value} value={typeof opt === 'string' ? opt : opt.value}>
+                                            {typeof opt === 'string' ? opt : opt.label}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                  ) : null}
+                                </div>
+                              ))
+                            )}
+                          </div>
+                        )}
+
                         {/* OR separator between conditions */}
                         {conditionIndex < group.conditions.length - 1 && (
                           <div className="flex justify-center py-2">
-                            <Badge variant="outline" className="border-purple-500/30 text-purple-300 text-xs">
+                            <Badge variant="outline" className="border-orange-500/30 text-orange-300 text-xs">
                               OR
                             </Badge>
                           </div>
@@ -447,7 +451,7 @@ export default function MobileIndicatorBuilder({ positionRule, onChange, title }
                       variant="outline"
                       size="sm"
                       onClick={() => addCondition(group.id)}
-                      className="w-full border-purple-500/30 text-purple-200 hover:bg-purple-500/10 text-sm"
+                      className="w-full border-orange-500/30 text-orange-200 hover:bg-orange-500/10 text-sm"
                     >
                       <Plus className="h-3 w-3 mr-2" />
                       Add Another Condition
@@ -460,7 +464,7 @@ export default function MobileIndicatorBuilder({ positionRule, onChange, title }
             {/* OR separator between groups */}
             {groupIndex < positionRule.conditionGroups.length - 1 && (
               <div className="flex justify-center py-2">
-                <Badge variant="outline" className="border-purple-500/30 text-purple-300">
+                <Badge variant="outline" className="border-orange-500/30 text-orange-300">
                   OR
                 </Badge>
               </div>
@@ -473,11 +477,11 @@ export default function MobileIndicatorBuilder({ positionRule, onChange, title }
       <Button
         variant="outline"
         onClick={addConditionGroup}
-        className="w-full border-dashed border-purple-500/30 text-purple-200 hover:bg-purple-500/10 bg-transparent"
+        className="w-full border-dashed border-orange-500/30 text-orange-200 hover:bg-orange-500/10 bg-transparent"
       >
         <Plus className="h-4 w-4 mr-2" />
         Add Alternative Group
       </Button>
     </div>
   )
-}
+} 

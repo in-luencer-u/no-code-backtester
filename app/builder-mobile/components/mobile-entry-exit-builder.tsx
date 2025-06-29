@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import MobileIndicatorBuilder from "./mobile-indicator-builder"
-import type { StrategyConfig } from "../../strategy-builder/strategy-builder"
+import type { StrategyConfig } from "@/components/strategy-builder/strategy-builder"
 
 interface MobileEntryExitBuilderProps {
   strategy: StrategyConfig

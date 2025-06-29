@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { motion } from "framer-motion"
-import { Shield, TrendingUp, Settings, AlertTriangle, Target, DollarSign } from "lucide-react"
+import { Shield, TrendingUp, Settings, AlertTriangle, Target, DollarSign, Clock, BarChart3, Users, Zap } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -11,7 +11,8 @@ import { Switch } from "@/components/ui/switch"
 import { Slider } from "@/components/ui/slider"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import type { StrategyConfig } from "../../strategy-builder/strategy-builder"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
+import type { StrategyConfig } from "@/components/strategy-builder/strategy-builder"
 
 interface MobileRiskManagementProps {
   strategy: StrategyConfig
@@ -20,6 +21,7 @@ interface MobileRiskManagementProps {
 
 export default function MobileRiskManagement({ strategy, onChange }: MobileRiskManagementProps) {
   const [activeTab, setActiveTab] = useState("position")
+  const [expandedSections, setExpandedSections] = useState<string[]>(["stop-loss"])
 
   const updateRiskManagement = (updates: any) => {
     onChange({
@@ -64,6 +66,12 @@ export default function MobileRiskManagement({ strategy, onChange }: MobileRiskM
     updateRiskManagement({
       positionSizing: [{ ...positionSizing, ...updates }],
     })
+  }
+
+  const toggleSection = (section: string) => {
+    setExpandedSections((prev) => 
+      prev.includes(section) ? prev.filter((s) => s !== section) : [...prev, section]
+    )
   }
 
   const stopLoss = strategy.riskManagement.stopLoss[0] || { type: "percentage", value: 2, enabled: true }
@@ -135,6 +143,8 @@ export default function MobileRiskManagement({ strategy, onChange }: MobileRiskM
                       <SelectItem value="percentage">Percentage of Portfolio</SelectItem>
                       <SelectItem value="fixed-amount">Fixed Dollar Amount</SelectItem>
                       <SelectItem value="risk-based">Risk-Based Sizing</SelectItem>
+                      <SelectItem value="kelly">Kelly Criterion</SelectItem>
+                      <SelectItem value="volatility-based">Volatility-Based</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -147,11 +157,15 @@ export default function MobileRiskManagement({ strategy, onChange }: MobileRiskM
                         ? "Portfolio %"
                         : positionSizing.type === "fixed-amount"
                           ? "Amount ($)"
-                          : "Risk %"}
+                          : positionSizing.type === "risk-based"
+                            ? "Risk %"
+                            : positionSizing.type === "kelly"
+                              ? "Kelly %"
+                              : "Volatility Multiplier"}
                     </Label>
                     <Badge variant="outline" className="border-purple-500/30 text-purple-300 text-xs">
                       {positionSizing.value}
-                      {positionSizing.type === "percentage" || positionSizing.type === "risk-based" ? "%" : ""}
+                      {["percentage", "risk-based", "kelly"].includes(positionSizing.type) ? "%" : ""}
                     </Badge>
                   </div>
                   <Slider
@@ -188,208 +202,350 @@ export default function MobileRiskManagement({ strategy, onChange }: MobileRiskM
           {/* Exit Rules Tab */}
           <TabsContent value="exits" className="space-y-4 mt-4">
             {/* Stop Loss */}
-            <Card className="border-purple-500/20 bg-background/60 backdrop-blur-xl">
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center space-x-2 text-sm">
-                  <AlertTriangle className="h-4 w-4 text-red-400" />
-                  <span>Stop Loss</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label className="text-xs font-medium">Stop Loss Type</Label>
-                  <Select value={stopLoss.type} onValueChange={(value) => updateStopLoss({ type: value })}>
-                    <SelectTrigger className="bg-background/80 border-purple-500/20 text-sm">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-background/95 backdrop-blur-xl border-purple-500/20">
-                      <SelectItem value="percentage">Percentage</SelectItem>
-                      <SelectItem value="fixed-dollar">Fixed Dollar</SelectItem>
-                      <SelectItem value="atr">ATR Based</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+            <Collapsible open={expandedSections.includes("stop-loss")} onOpenChange={() => toggleSection("stop-loss")}>
+              <Card className="border-purple-500/20 bg-background/60 backdrop-blur-xl">
+                <CollapsibleTrigger asChild>
+                  <CardHeader className="pb-3 cursor-pointer">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <AlertTriangle className="h-4 w-4 text-red-400" />
+                        <CardTitle className="text-sm">Stop Loss</CardTitle>
+                        <Badge variant="outline" className="border-red-500/30 text-red-300 text-xs">
+                          {stopLoss.enabled ? "Active" : "Inactive"}
+                        </Badge>
+                      </div>
+                      <motion.div animate={{ rotate: expandedSections.includes("stop-loss") ? 180 : 0 }} transition={{ duration: 0.2 }}>
+                        <Settings className="h-4 w-4 text-muted-foreground" />
+                      </motion.div>
+                    </div>
+                  </CardHeader>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <CardContent className="pt-0 space-y-4">
+                    <div className="space-y-2">
+                      <Label className="text-xs font-medium">Stop Loss Type</Label>
+                      <Select value={stopLoss.type} onValueChange={(value) => updateStopLoss({ type: value })}>
+                        <SelectTrigger className="bg-background/80 border-purple-500/20 text-sm">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="bg-background/95 backdrop-blur-xl border-purple-500/20">
+                          <SelectItem value="percentage">Percentage</SelectItem>
+                          <SelectItem value="atr">ATR-based</SelectItem>
+                          <SelectItem value="fixed-dollar">Fixed Dollar</SelectItem>
+                          <SelectItem value="time">Time-based</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-xs font-medium">Stop Loss Value</Label>
-                    <Badge variant="outline" className="border-red-500/30 text-red-300 text-xs">
-                      {stopLoss.value}%
-                    </Badge>
-                  </div>
-                  <Slider
-                    value={[Number(stopLoss.value)]}
-                    onValueChange={(values) => updateStopLoss({ value: values[0] })}
-                    max={10}
-                    min={0.5}
-                    step={0.1}
-                    className="w-full"
-                  />
-                </div>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-xs font-medium">
+                          {stopLoss.type === "percentage" ? "Stop Loss %" : 
+                           stopLoss.type === "atr" ? "ATR Multiplier" :
+                           stopLoss.type === "fixed-dollar" ? "Amount ($)" : "Time (bars)"}
+                        </Label>
+                        <Badge variant="outline" className="border-red-500/30 text-red-300 text-xs">
+                          {stopLoss.value}
+                          {stopLoss.type === "percentage" ? "%" : 
+                           stopLoss.type === "atr" ? "x" :
+                           stopLoss.type === "fixed-dollar" ? "$" : ""}
+                        </Badge>
+                      </div>
+                      <Slider
+                        value={[Number(stopLoss.value)]}
+                        onValueChange={(values) => updateStopLoss({ value: values[0] })}
+                        max={stopLoss.type === "percentage" ? 10 : stopLoss.type === "atr" ? 5 : 1000}
+                        min={0.1}
+                        step={0.1}
+                        className="w-full"
+                      />
+                      <Input
+                        type="number"
+                        value={stopLoss.value}
+                        onChange={(e) => updateStopLoss({ value: Number(e.target.value) })}
+                        className="bg-background/80 border-purple-500/20 text-sm"
+                      />
+                    </div>
 
-                <div className="flex items-center justify-between p-3 rounded-lg bg-background/40 border border-purple-500/20">
-                  <div>
-                    <Label className="text-xs font-medium">Enable Stop Loss</Label>
-                    <p className="text-xs text-muted-foreground">Automatically exit losing trades</p>
-                  </div>
-                  <Switch
-                    checked={stopLoss.enabled}
-                    onCheckedChange={(checked) => updateStopLoss({ enabled: checked })}
-                  />
-                </div>
-              </CardContent>
-            </Card>
+                    <div className="flex items-center justify-between p-3 rounded-lg bg-background/40 border border-purple-500/20">
+                      <div>
+                        <Label className="text-xs font-medium">Enable Stop Loss</Label>
+                        <p className="text-xs text-muted-foreground">Automatically exit losing trades</p>
+                      </div>
+                      <Switch
+                        checked={stopLoss.enabled}
+                        onCheckedChange={(checked) => updateStopLoss({ enabled: checked })}
+                      />
+                    </div>
+                  </CardContent>
+                </CollapsibleContent>
+              </Card>
+            </Collapsible>
 
             {/* Take Profit */}
-            <Card className="border-purple-500/20 bg-background/60 backdrop-blur-xl">
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center space-x-2 text-sm">
-                  <Target className="h-4 w-4 text-green-400" />
-                  <span>Take Profit</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label className="text-xs font-medium">Take Profit Type</Label>
-                  <Select value={takeProfit.type} onValueChange={(value) => updateTakeProfit({ type: value })}>
-                    <SelectTrigger className="bg-background/80 border-purple-500/20 text-sm">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-background/95 backdrop-blur-xl border-purple-500/20">
-                      <SelectItem value="percentage">Percentage</SelectItem>
-                      <SelectItem value="r:r">Risk:Reward Ratio</SelectItem>
-                      <SelectItem value="fixed-dollar">Fixed Dollar</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+            <Collapsible open={expandedSections.includes("take-profit")} onOpenChange={() => toggleSection("take-profit")}>
+              <Card className="border-purple-500/20 bg-background/60 backdrop-blur-xl">
+                <CollapsibleTrigger asChild>
+                  <CardHeader className="pb-3 cursor-pointer">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <Target className="h-4 w-4 text-green-400" />
+                        <CardTitle className="text-sm">Take Profit</CardTitle>
+                        <Badge variant="outline" className="border-green-500/30 text-green-300 text-xs">
+                          {takeProfit.enabled ? "Active" : "Inactive"}
+                        </Badge>
+                      </div>
+                      <motion.div animate={{ rotate: expandedSections.includes("take-profit") ? 180 : 0 }} transition={{ duration: 0.2 }}>
+                        <Settings className="h-4 w-4 text-muted-foreground" />
+                      </motion.div>
+                    </div>
+                  </CardHeader>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <CardContent className="pt-0 space-y-4">
+                    <div className="space-y-2">
+                      <Label className="text-xs font-medium">Take Profit Type</Label>
+                      <Select value={takeProfit.type} onValueChange={(value) => updateTakeProfit({ type: value })}>
+                        <SelectTrigger className="bg-background/80 border-purple-500/20 text-sm">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="bg-background/95 backdrop-blur-xl border-purple-500/20">
+                          <SelectItem value="percentage">Percentage</SelectItem>
+                          <SelectItem value="r:r">Risk:Reward Ratio</SelectItem>
+                          <SelectItem value="atr">ATR-based</SelectItem>
+                          <SelectItem value="trailing">Trailing</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-xs font-medium">Take Profit Value</Label>
-                    <Badge variant="outline" className="border-green-500/30 text-green-300 text-xs">
-                      {takeProfit.value}%
-                    </Badge>
-                  </div>
-                  <Slider
-                    value={[Number(takeProfit.value)]}
-                    onValueChange={(values) => updateTakeProfit({ value: values[0] })}
-                    max={20}
-                    min={1}
-                    step={0.5}
-                    className="w-full"
-                  />
-                </div>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-xs font-medium">
+                          {takeProfit.type === "percentage" ? "Take Profit %" : 
+                           takeProfit.type === "r:r" ? "Risk:Reward Ratio" :
+                           takeProfit.type === "atr" ? "ATR Multiplier" : "Trailing %"}
+                        </Label>
+                        <Badge variant="outline" className="border-green-500/30 text-green-300 text-xs">
+                          {takeProfit.value}
+                          {takeProfit.type === "percentage" ? "%" : 
+                           takeProfit.type === "r:r" ? ":1" :
+                           takeProfit.type === "atr" ? "x" : "%"}
+                        </Badge>
+                      </div>
+                      <Slider
+                        value={[Number(takeProfit.value)]}
+                        onValueChange={(values) => updateTakeProfit({ value: values[0] })}
+                        max={takeProfit.type === "percentage" ? 50 : takeProfit.type === "r:r" ? 10 : 10}
+                        min={0.1}
+                        step={0.1}
+                        className="w-full"
+                      />
+                      <Input
+                        type="number"
+                        value={takeProfit.value}
+                        onChange={(e) => updateTakeProfit({ value: Number(e.target.value) })}
+                        className="bg-background/80 border-purple-500/20 text-sm"
+                      />
+                    </div>
 
-                <div className="flex items-center justify-between p-3 rounded-lg bg-background/40 border border-purple-500/20">
-                  <div>
-                    <Label className="text-xs font-medium">Enable Take Profit</Label>
-                    <p className="text-xs text-muted-foreground">Automatically exit winning trades</p>
-                  </div>
-                  <Switch
-                    checked={takeProfit.enabled}
-                    onCheckedChange={(checked) => updateTakeProfit({ enabled: checked })}
-                  />
-                </div>
-              </CardContent>
-            </Card>
+                    <div className="flex items-center justify-between p-3 rounded-lg bg-background/40 border border-purple-500/20">
+                      <div>
+                        <Label className="text-xs font-medium">Enable Take Profit</Label>
+                        <p className="text-xs text-muted-foreground">Automatically exit profitable trades</p>
+                      </div>
+                      <Switch
+                        checked={takeProfit.enabled}
+                        onCheckedChange={(checked) => updateTakeProfit({ enabled: checked })}
+                      />
+                    </div>
+                  </CardContent>
+                </CollapsibleContent>
+              </Card>
+            </Collapsible>
           </TabsContent>
 
           {/* Limits Tab */}
           <TabsContent value="limits" className="space-y-4 mt-4">
-            {/* Max Positions */}
+            {/* Trading Limits */}
             <Card className="border-purple-500/20 bg-background/60 backdrop-blur-xl">
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center space-x-2 text-sm">
-                  <Settings className="h-4 w-4 text-purple-400" />
+                  <BarChart3 className="h-4 w-4 text-purple-400" />
                   <span>Trading Limits</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label className="text-xs font-medium">Max Positions</Label>
-                    <Input
-                      type="number"
-                      value={strategy.riskManagement.maxOpenPositions}
-                      onChange={(e) => updateRiskManagement({ maxOpenPositions: Number(e.target.value) })}
-                      className="bg-background/80 border-purple-500/20 text-sm"
-                      min="1"
-                      max="10"
-                    />
+                {/* Max Open Positions */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-xs font-medium">Max Open Positions</Label>
+                    <Badge variant="outline" className="border-purple-500/30 text-purple-300 text-xs">
+                      {strategy.riskManagement.maxOpenPositions}
+                    </Badge>
                   </div>
-                  <div className="space-y-2">
-                    <Label className="text-xs font-medium">Max Drawdown (%)</Label>
-                    <Input
-                      type="number"
-                      value={strategy.riskManagement.maxDrawdown}
-                      onChange={(e) => updateRiskManagement({ maxDrawdown: Number(e.target.value) })}
-                      className="bg-background/80 border-purple-500/20 text-sm"
-                      min="5"
-                      max="50"
-                    />
-                  </div>
+                  <Slider
+                    value={[strategy.riskManagement.maxOpenPositions]}
+                    onValueChange={(values) => updateRiskManagement({ maxOpenPositions: values[0] })}
+                    max={10}
+                    min={1}
+                    step={1}
+                    className="w-full"
+                  />
+                  <Input
+                    type="number"
+                    value={strategy.riskManagement.maxOpenPositions}
+                    onChange={(e) => updateRiskManagement({ maxOpenPositions: Number(e.target.value) })}
+                    className="bg-background/80 border-purple-500/20 text-sm"
+                  />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label className="text-xs font-medium">Daily Loss Limit (%)</Label>
-                    <Input
-                      type="number"
-                      value={strategy.riskManagement.maxDailyLoss}
-                      onChange={(e) => updateRiskManagement({ maxDailyLoss: Number(e.target.value) })}
-                      className="bg-background/80 border-purple-500/20 text-sm"
-                      min="1"
-                      max="20"
-                    />
+                {/* Max Drawdown */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-xs font-medium">Max Drawdown (%)</Label>
+                    <Badge variant="outline" className="border-purple-500/30 text-purple-300 text-xs">
+                      {strategy.riskManagement.maxDrawdown}%
+                    </Badge>
                   </div>
-                  <div className="space-y-2">
-                    <Label className="text-xs font-medium">Consecutive Losses</Label>
-                    <Input
-                      type="number"
-                      value={strategy.riskManagement.maxConsecutiveLosses}
-                      onChange={(e) => updateRiskManagement({ maxConsecutiveLosses: Number(e.target.value) })}
-                      className="bg-background/80 border-purple-500/20 text-sm"
-                      min="1"
-                      max="10"
-                    />
+                  <Slider
+                    value={[strategy.riskManagement.maxDrawdown]}
+                    onValueChange={(values) => updateRiskManagement({ maxDrawdown: values[0] })}
+                    max={50}
+                    min={1}
+                    step={1}
+                    className="w-full"
+                  />
+                  <Input
+                    type="number"
+                    value={strategy.riskManagement.maxDrawdown}
+                    onChange={(e) => updateRiskManagement({ maxDrawdown: Number(e.target.value) })}
+                    className="bg-background/80 border-purple-500/20 text-sm"
+                  />
+                </div>
+
+                {/* Max Daily Loss */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-xs font-medium">Max Daily Loss (%)</Label>
+                    <Badge variant="outline" className="border-purple-500/30 text-purple-300 text-xs">
+                      {strategy.riskManagement.maxDailyLoss}%
+                    </Badge>
                   </div>
+                  <Slider
+                    value={[strategy.riskManagement.maxDailyLoss]}
+                    onValueChange={(values) => updateRiskManagement({ maxDailyLoss: values[0] })}
+                    max={20}
+                    min={1}
+                    step={1}
+                    className="w-full"
+                  />
+                  <Input
+                    type="number"
+                    value={strategy.riskManagement.maxDailyLoss}
+                    onChange={(e) => updateRiskManagement({ maxDailyLoss: Number(e.target.value) })}
+                    className="bg-background/80 border-purple-500/20 text-sm"
+                  />
+                </div>
+
+                {/* Max Consecutive Losses */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-xs font-medium">Max Consecutive Losses</Label>
+                    <Badge variant="outline" className="border-purple-500/30 text-purple-300 text-xs">
+                      {strategy.riskManagement.maxConsecutiveLosses}
+                    </Badge>
+                  </div>
+                  <Slider
+                    value={[strategy.riskManagement.maxConsecutiveLosses]}
+                    onValueChange={(values) => updateRiskManagement({ maxConsecutiveLosses: values[0] })}
+                    max={10}
+                    min={1}
+                    step={1}
+                    className="w-full"
+                  />
+                  <Input
+                    type="number"
+                    value={strategy.riskManagement.maxConsecutiveLosses}
+                    onChange={(e) => updateRiskManagement({ maxConsecutiveLosses: Number(e.target.value) })}
+                    className="bg-background/80 border-purple-500/20 text-sm"
+                  />
                 </div>
               </CardContent>
             </Card>
 
-            {/* Risk Targets */}
+            {/* Advanced Settings */}
             <Card className="border-purple-500/20 bg-background/60 backdrop-blur-xl">
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center space-x-2 text-sm">
-                  <Target className="h-4 w-4 text-purple-400" />
-                  <span>Risk Targets</span>
+                  <Zap className="h-4 w-4 text-purple-400" />
+                  <span>Advanced Settings</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
+                {/* Profit Target */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
                     <Label className="text-xs font-medium">Profit Target (%)</Label>
-                    <Input
-                      type="number"
-                      value={strategy.riskManagement.profitTarget}
-                      onChange={(e) => updateRiskManagement({ profitTarget: Number(e.target.value) })}
-                      className="bg-background/80 border-purple-500/20 text-sm"
-                      min="5"
-                      max="100"
-                    />
+                    <Badge variant="outline" className="border-purple-500/30 text-purple-300 text-xs">
+                      {strategy.riskManagement.profitTarget}%
+                    </Badge>
                   </div>
-                  <div className="space-y-2">
-                    <Label className="text-xs font-medium">Min Risk:Reward</Label>
-                    <Input
-                      type="number"
-                      step="0.1"
-                      value={strategy.riskManagement.riskRewardMinimum}
-                      onChange={(e) => updateRiskManagement({ riskRewardMinimum: Number(e.target.value) })}
-                      className="bg-background/80 border-purple-500/20 text-sm"
-                      min="1"
-                      max="5"
-                    />
+                  <Slider
+                    value={[strategy.riskManagement.profitTarget]}
+                    onValueChange={(values) => updateRiskManagement({ profitTarget: values[0] })}
+                    max={100}
+                    min={1}
+                    step={1}
+                    className="w-full"
+                  />
+                  <Input
+                    type="number"
+                    value={strategy.riskManagement.profitTarget}
+                    onChange={(e) => updateRiskManagement({ profitTarget: Number(e.target.value) })}
+                    className="bg-background/80 border-purple-500/20 text-sm"
+                  />
+                </div>
+
+                {/* Risk:Reward Minimum */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-xs font-medium">Min Risk:Reward Ratio</Label>
+                    <Badge variant="outline" className="border-purple-500/30 text-purple-300 text-xs">
+                      {strategy.riskManagement.riskRewardMinimum}:1
+                    </Badge>
                   </div>
+                  <Slider
+                    value={[strategy.riskManagement.riskRewardMinimum]}
+                    onValueChange={(values) => updateRiskManagement({ riskRewardMinimum: values[0] })}
+                    max={5}
+                    min={0.5}
+                    step={0.1}
+                    className="w-full"
+                  />
+                  <Input
+                    type="number"
+                    value={strategy.riskManagement.riskRewardMinimum}
+                    onChange={(e) => updateRiskManagement({ riskRewardMinimum: Number(e.target.value) })}
+                    className="bg-background/80 border-purple-500/20 text-sm"
+                  />
+                </div>
+
+                {/* Experience Level */}
+                <div className="space-y-2">
+                  <Label className="text-xs font-medium">Experience Level</Label>
+                  <Select 
+                    value={strategy.riskManagement.experienceLevel} 
+                    onValueChange={(value) => updateRiskManagement({ experienceLevel: value })}
+                  >
+                    <SelectTrigger className="bg-background/80 border-purple-500/20 text-sm">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background/95 backdrop-blur-xl border-purple-500/20">
+                      <SelectItem value="beginner">Beginner</SelectItem>
+                      <SelectItem value="intermediate">Intermediate</SelectItem>
+                      <SelectItem value="advanced">Advanced</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </CardContent>
             </Card>
