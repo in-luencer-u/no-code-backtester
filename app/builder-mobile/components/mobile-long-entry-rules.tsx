@@ -179,20 +179,30 @@ export default function MobileLongEntryRules({ positionRule, onChange }: MobileL
           if (isType) {
             // When changing type, reset params to defaults
             const meta = indicatorMetadata[value]
+            const defaultParams: Record<string, any> = {}
+            if (meta?.parameters) {
+              Object.entries(meta.parameters).forEach(([k, v]) => {
+                // Convert boolean defaults to string/number as expected by IndicatorParams
+                if (typeof v.default === 'boolean') {
+                  defaultParams[k] = v.default ? '1' : '0'
+                } else {
+                  defaultParams[k] = v.default
+                }
+              })
+            }
             return {
               ...c,
               secondaryIndicator: {
-                type: value,
-                params: Object.fromEntries(Object.entries(meta?.parameters || {}).map(([k, v]) => [k, v.default]))
+                type: value as IndicatorType,
+                params: defaultParams
               },
             }
           } else {
             return {
               ...c,
               secondaryIndicator: {
-                ...c.secondaryIndicator,
+                ...c.secondaryIndicator!,
                 params: { ...c.secondaryIndicator?.params, [key]: value },
-                type: c.secondaryIndicator?.type,
               },
             }
           }
@@ -377,7 +387,7 @@ export default function MobileLongEntryRules({ positionRule, onChange }: MobileL
                                 {param.type === "number" ? (
                                   <Input
                                     type="number"
-                                    value={condition.params?.[paramKey] ?? param.default}
+                                    value={String(condition.params?.[paramKey] ?? param.default)}
                                     onChange={e => updateParam(group.id, condition.id, paramKey, e.target.value)}
                                     className="bg-background/80 border-green-500/20 text-sm"
                                   />
@@ -432,7 +442,7 @@ export default function MobileLongEntryRules({ positionRule, onChange }: MobileL
                                     {param.type === "number" ? (
                                       <Input
                                         type="number"
-                                        value={condition.secondaryIndicator?.params?.[paramKey] ?? param.default}
+                                        value={String(condition.secondaryIndicator?.params?.[paramKey] ?? param.default)}
                                         onChange={e => updateSecondaryIndicator(group.id, condition.id, paramKey, e.target.value)}
                                         className="bg-background/80 border-green-500/20 text-sm"
                                       />
