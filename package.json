@@ -1,0 +1,12 @@
+{
+  "name": "no-code-backtester",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "cd no-code-backtester && pnpm dev",
+    "test": "cd no-code-backtester && pnpm test"
+  },
+  "author": "",
+  "license": "ISC"
+}
