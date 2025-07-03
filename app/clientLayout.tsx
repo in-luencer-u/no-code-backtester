@@ -125,11 +125,11 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   }, [pathname])
 
   const navLinks = [
-    { href: "/dashboard", icon: LayoutDashboard, text: "Dashboard" },
+   {/* { href: "/dashboard", icon: LayoutDashboard, text: "Dashboard" },
     { href: "/marketplace", icon: Store, text: "Marketplace" },
     { href: "/builder", icon: Code, text: "Builder" },
     { href: "/backtest", icon: LineChart, text: "Backtest" },
-    { href: "/settings", icon: Settings, text: "Settings" },
+    { href: "/settings", icon: Settings, text: "Settings" }, */}
   ]
 
   return (
@@ -177,10 +177,10 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
               <span className="text-xs text-muted-foreground">alex@example.com</span>
             </div>
 
-            {/* Navigation links */}
+            {/* Navigation links 
             <nav className="flex flex-col gap-2 mt-8 px-4">
-              {navLinks.map((link) => {
-                const isActive = pathname?.startsWith(link.href)
+              {navLinks?.map((link) => {
+                const isActive = pathname?.startsWith(link?.href)
                 return (
                   <Link
                     key={link.href}
@@ -199,7 +199,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                   </Link>
                 )
               })}
-            </nav>
+            </nav>*/}
 
             <div className="mt-auto p-4">
               <Link href="/strategy/upload" className={cn(
@@ -237,13 +237,13 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                     </span>
                     <span className="font-extrabold text-xl tracking-tight text-foreground">Trade Crafter</span>
                   </Link>
-                  <nav className="hidden items-center space-x-5 text-sm font-medium md:flex">
+                { /* <nav className="hidden items-center space-x-5 text-sm font-medium md:flex">
                     <Link href="/dashboard" className="transition-colors hover:text-primary underline-offset-4 hover:underline px-2 py-1 rounded-md">Dashboard</Link>
                     <Link href="/marketplace" className="transition-colors hover:text-primary underline-offset-4 hover:underline px-2 py-1 rounded-md">Marketplace</Link>
                     <Link href="/builder" className="transition-colors hover:text-primary underline-offset-4 hover:underline px-2 py-1 rounded-md">Builder</Link>
                     <Link href="/backtest" className="transition-colors hover:text-primary underline-offset-4 hover:underline px-2 py-1 rounded-md">Backtest</Link>
                     <Link href="/settings" className="transition-colors hover:text-primary underline-offset-4 hover:underline px-2 py-1 rounded-md">Settings</Link>
-                  </nav>
+                  </nav> */ }
                 </div>
                 {/* Profile dropdown - repositioned for mobile */}
                 <div className="hidden md:flex items-center gap-4">

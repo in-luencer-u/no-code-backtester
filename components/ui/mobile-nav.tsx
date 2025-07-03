@@ -39,23 +39,23 @@ export function MobileNav() {
             <X className="h-5 w-5" />
           </Button>
         </div>
-        <nav className="mt-4 flex flex-col space-y-4">
-          <Link
+       <nav className="mt-4 flex flex-col space-y-4">
+          { /* <Link
             href="/dashboard"
             className="flex items-center rounded-md px-2 py-1 hover:bg-muted"
             onClick={() => setOpen(false)}
           >
             <Home className="mr-2 h-5 w-5" />
             Dashboard
-          </Link>
-          <Link
+          </Link> */ }
+       {/*   <Link
             href="/marketplace"
             className="flex items-center rounded-md px-2 py-1 hover:bg-muted"
             onClick={() => setOpen(false)}
           >
             <BarChart4 className="mr-2 h-5 w-5" />
             MarketPlace
-          </Link>
+          </Link> */}
           <Link
             href="/builder"
             className="flex items-center rounded-md px-2 py-1 hover:bg-muted"
@@ -64,22 +64,22 @@ export function MobileNav() {
             <BarChart4 className="mr-2 h-5 w-5" />
             Builder
           </Link>
-          <Link
+         <Link
             href="/backtest"
             className="flex items-center rounded-md px-2 py-1 hover:bg-muted"
             onClick={() => setOpen(false)}
           >
             <BarChart4 className="mr-2 h-5 w-5" />
             Backtest
-          </Link>
-          <Link
+          </Link>  
+         {/* <Link
             href="/settings"
             className="flex items-center rounded-md px-2 py-1 hover:bg-muted"
             onClick={() => setOpen(false)}
           >
             <Settings className="mr-2 h-5 w-5" />
             Settings
-          </Link>
+          </Link> */ }
         </nav>
       </SheetContent>
     </Sheet>

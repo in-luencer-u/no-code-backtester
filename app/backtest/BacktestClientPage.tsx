@@ -197,7 +197,7 @@ export default function BacktestClientPage() {
                   <Input type="number" defaultValue="10" />
                 </div>
 
-                <Button className="w-full">Run Backtest</Button>
+                <Button className="w-full">Run Backtest</Button> 
               </div>
             </CardContent>
           </Card>
@@ -339,7 +339,7 @@ export default function BacktestClientPage() {
               <div className="space-y-4">
                 <h3 className="font-medium">Parameter Optimization</h3>
                 {renderOptimizationCards()}
-                <Button>Run Optimization</Button>
+              {/*  <Button>Run Optimization</Button> */}
               </div>
             </CardContent>
           </Card>

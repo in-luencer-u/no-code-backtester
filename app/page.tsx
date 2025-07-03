@@ -26,6 +26,7 @@ import {
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { useRouter } from "next/navigation"
 
 // Animation variants
 const fadeInUp = {
@@ -61,13 +62,30 @@ const slideInRight = {
 }
 
 export default function Home() {
+
+const router = useRouter()
+
+  useEffect(()=>{
+    router.replace("/builder-mobile")
+
+  },[])
+ 
+
+
+
+
   const [isVisible, setIsVisible] = useState(false)
   const { scrollYProgress } = useScroll()
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"])
   const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0])
+  
+
+
+
+  
 
   useEffect(() => {
-    setIsVisible(true)
+   // setIsVisible(true)
   }, [])
 
   return (
